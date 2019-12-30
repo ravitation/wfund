@@ -5,11 +5,13 @@ from wx import adv
 from aiodb.pool import init_connection, destory_connection
 from view.frame import WFundFrame
 from config.config import Db
+from config.data import start_on, icon
+from config.img import EmbedImg
 
 
 class App(wx.App):
     def OnInit(self):
-        bmp = wx.Image("imgs/start_on.jpeg").ConvertToBitmap()
+        bmp = EmbedImg(start_on).GetBitmap()
         adv.SplashScreen(bmp, adv.SPLASH_CENTER_ON_SCREEN | adv.SPLASH_TIMEOUT, 1000, None, -1)
         wx.Yield()
         self.init_db()

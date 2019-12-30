@@ -11,6 +11,8 @@ from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
 from model.common import Config
+from config.data import icon
+from config.img import EmbedImg
 
 
 class WFundFrame(wx.Frame):
@@ -18,6 +20,8 @@ class WFundFrame(wx.Frame):
         self.user = None
         self.title = "WFund - Give me Five"
         wx.Frame.__init__(self, parent, pid, self.title, size=(800, 600))
+        ico = EmbedImg(icon).GetIcon()
+        self.SetIcon(ico)
         self.filename = ''
         self.wildcard = "WFund files (*.WFund) | *.WFund|All files (* .*) | *.*"
         self.panel_list = []
