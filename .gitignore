@@ -1,0 +1,13 @@
+.idea/
+__pycache__/
+build/
+dist/
+local/
+image/
+imgs/
+
+*.jpeg
+*.png
+*.jpg
+*.gif
+*.spec
