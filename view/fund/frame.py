@@ -4,15 +4,16 @@ import wx
 import time
 import importlib
 from utils.menu import Menu
-from view.about import WFundAbout
+from view.fund.about import WFundAbout
 from view.maintain import MaintainPanel
-from view.per_stat import PerStatPanel
+from view.fund.per_stat import PerStatPanel
+from view.fund.cls_stat import ClsStatPanel
 from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
 from model.common import Config
-from config.data import icon
-from config.img import EmbedImg
+from resources.images import ICON
+from utils.img_tran import EmbedImg
 
 
 class WFundFrame(wx.Frame):
@@ -20,7 +21,7 @@ class WFundFrame(wx.Frame):
         self.user = None
         self.title = "WFund - Give me Five"
         wx.Frame.__init__(self, parent, pid, self.title, size=(800, 600))
-        ico = EmbedImg(icon).GetIcon()
+        ico = EmbedImg(ICON).GetIcon()
         self.SetIcon(ico)
         self.filename = ''
         self.wildcard = "WFund files (*.WFund) | *.WFund|All files (* .*) | *.*"
@@ -35,7 +36,7 @@ class WFundFrame(wx.Frame):
     def initStatusBar(self):
         self.statusbar = self.CreateStatusBar()
         self.statusbar.SetFieldsCount(3)
-        self.statusbar.SetStatusWidths([-1, -3, -2])
+        self.statusbar.SetStatusWidths([-1, -1, -1])
         self.timer = wx.PyTimer(self.Notify)
         self.timer.Start(1000, wx.TIMER_CONTINUOUS)
         self.Notify()
@@ -43,21 +44,24 @@ class WFundFrame(wx.Frame):
     def menuData(self):
         return [("操作", (
             ("新增申请\tCtrl+N", "", self.OnApplyFund, 'N'),
-            ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
-            ("组内统计\tCtrl+G", "", self.OnClsStat, 'G'),
-            ("详情\tCtrl+D", "", self.OnDetail, 'D'),
-            ("", "", "", ''),
-            ("维护\tCtrl+M", "", self.OnMaintain, 'M'),
-            ("申请开关", (
-                ("开\tCtrl+Alt+O", "", self.OnApplySign, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
-                ("关\tCtrl+Alt+C", "", self.OnApplySign, 'C', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
+            ("统计", (
+                ("详情\tCtrl+D", "", self.OnDetail, 'D'),
+                ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
+                ("组内统计\tCtrl+G", "", self.OnClsStat, 'G')
             )),
             ("", "", "", ''),
             ("关闭\tCtrl+Q", "", self.OnCloseWindow, 'Q')),
-         ), ("帮助", (
-             ("&关于\tCtrl+Shift+A", "", self.OnAbout, 'A', wx.ACCEL_CTRL | wx.ACCEL_SHIFT),
-             ("&说明\tCtrl+E", "", self.OnAbout, 'E')
-         ))]
+            ), ('管理', (
+                ("添加用户\tCtrl+Alt+A", "", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                ("登录其他用户\tCtrl+Alt+U", "", self.OnLogOther, 'U', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                ("申请开关", (
+                    ("开\tCtrl+Alt+O", "", self.OnApplySign, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
+                    ("关\tCtrl+Alt+C", "", self.OnApplySign, 'C', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
+                ))
+            )), ("帮助", (
+                ("&关于\tCtrl+Shift+A", "", self.OnAbout, 'A', wx.ACCEL_CTRL | wx.ACCEL_SHIFT),
+                ("&说明\tCtrl+E", "", self.OnAbout, 'E')
+            ))]
 
     def initMenu(self):
         self.menu = Menu(self, self.menuData())
@@ -65,14 +69,11 @@ class WFundFrame(wx.Frame):
         if signs:
             val = signs[0].value
             if val == 'N':
-                id = self.menu.FindMenuItem('操作', '关')
+                id = self.menu.FindMenuItem('管理', '关')
                 apply_menu = self.menu.FindItemById(id)
                 if apply_menu.IsCheckable():
                     # apply_menu.IsChecked()
                     apply_menu.Check(True)
-
-                pass
-
 
     def createPanel(self):
         self.hbox = wx.BoxSizer(wx.HORIZONTAL)
@@ -82,23 +83,37 @@ class WFundFrame(wx.Frame):
     def OnApplyFund(self, event):
         self.form = Form(self, -1, user=self.user)
         if self.form.ShowModal() == wx.ID_OK:
-            print(self.form.data)
-        # self.apply_panel = None
-        # self.changePanel('view.apply', 'ApplyPanel', self.apply_panel)
+            self.flush()
 
     def OnPerStat(self, event):
         self.per_stat_panel = None
-        self.changePanel('view.per_stat', 'PerStatPanel', self.per_stat_panel)
+        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel)
 
     def OnClsStat(self, event):
-        log = Login(self, -1)
-        if log.ShowModal() == wx.ID_OK:
-            print('success')
+        self.per_cls_panel = None
+        self.changePanel('view.fund.cls_stat', 'ClsStatPanel', self.per_cls_panel)
 
     def OnDetail(self, event):
         reg = Register(self, -1)
         if reg.ShowModal() == wx.ID_OK:
             print('register success')
+
+    def OnAddUser(self, event):
+        if not self.isRole('ADMIN'):
+            wx.MessageBox('权限需要提升！', 'Error')
+            return
+        reg = Register(self, -1)
+        if reg.ShowModal() == wx.ID_OK:
+            print('register success')
+
+    def OnLogOther(self, event):
+        if not self.isRole('ADMIN'):
+            wx.MessageBox('权限需要提升！', 'Error')
+            return
+        log = Login(self, -1)
+        if log.ShowModal() == wx.ID_OK:
+            self.user = log.log_user
+        self.flush()
 
     def OnApplySign(self, event):
         if not self.isRole('ADMIN'):
@@ -146,7 +161,7 @@ class WFundFrame(wx.Frame):
         if panel not in self.panel_list:
             model = importlib.import_module(module)
             obj_class_name = getattr(model, panel_class)
-            panel = obj_class_name(self, -1)
+            panel = obj_class_name(self, -1, self.user)
             self.panel_list.append(panel)
             self.hbox.Add(panel, 1, wx.EXPAND)
         self.hbox.Show(panel)
@@ -158,6 +173,10 @@ class WFundFrame(wx.Frame):
 
     def isRole(self, auth):
         return self.user.role == auth
+
+    def flush(self):
+        for panel in self.panel_list:
+            panel.refresh(self.user)
 
 
 

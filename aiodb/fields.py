@@ -2,8 +2,6 @@
 # _*_ coding=utf-8 _*_
 import decimal
 
-decimal.getcontext().prec = 6
-
 
 class Field(object):
     def __init__(self, name, column_type, primary__key, default):

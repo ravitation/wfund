@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
-from view.datapick import DatePick
+from view.component.datapick import DatePick
 from model.fund import FundApply
 from utils.util import now_time_str
 
