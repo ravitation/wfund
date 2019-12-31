@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
+import wx.grid
 from utils.compute import Compute
+from model.common import User
 from model.fund import FundPayRecord, FundProvide, FundApply
 from view.component.part import Part
+from view.component.table import GenericTable
 
 
 class FundDetail(wx.Panel):
@@ -19,6 +22,7 @@ class FundDetail(wx.Panel):
         self.provide = FundProvide.find()
         self.pay = FundPayRecord.find()
         self.apply = FundApply.find()
+        self.all_user = User.all()
 
         provide = Compute.zero()
         for item in self.provide:
@@ -38,14 +42,50 @@ class FundDetail(wx.Panel):
         unpay = Part.GenShowText(self, round(sq, 2), self.default_font, wx.ALIGN_CENTER)
         unuse_sizer = Part.GenStaticBoxSizer(self, '剩余（元）', [unuse], wx.ALL)
         unpay_sizer = Part.GenStaticBoxSizer(self, '未报销（元）', [unpay], wx.ALL)
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        sizer.Add(unuse_sizer, 1, wx.ALL, 5)
-        sizer.Add(unpay_sizer, 1, wx.ALL, 5)
-        self.SetSizer(sizer)
+
+        h_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        h_sizer.Add(unuse_sizer, 1, wx.ALL, 5)
+        h_sizer.Add(unpay_sizer, 1, wx.ALL, 5)
+
+        self.grid = self.init_grid()
+
+        v_sizer = wx.BoxSizer(wx.VERTICAL)
+        v_sizer.Add(h_sizer, 0, wx.ALL | wx.EXPAND, 5)
+        v_sizer.Add(self.grid, 1, wx.ALL, 5)
+
+        self.SetSizer(v_sizer)
         self.Layout()
 
-    def grid(self):
-        pass
+    def init_grid(self):
+        colLabels = ['时间', '操作', '金额（元）', '相关人员']
+        grid = wx.grid.Grid(self)
+        table = GenericTable(data=self.get_grid_data(), colLabels=colLabels)
+        grid.SetTable(table, True)
+        grid.SetColSize(0, 180)
+
+        # grid.ForceRefresh()
+
+        # grid.BeginBatch()
+        # process
+        # grid.EndBatch()
+        return grid
+
+    def get_grid_data(self):
+        db_data = {}
+        data = {}
+        index = 0
+        for item in self.provide:
+            db_data[index] = (item.create_time, '增加', item.money, self.all_user[self.user.id])
+            index += 1
+
+        for item in self.pay:
+            db_data[index] = (item.create_time, '报销', item.money, self.all_user[item.user_id])
+            index += 1
+        for i in range(len(db_data)):
+            item = db_data[i]
+            for k in range(len(item)):
+                data[(i, k)] = item[k]
+        return data
 
     def refresh(self, user):
         self.user = user
