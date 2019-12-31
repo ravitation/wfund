@@ -44,10 +44,7 @@ class FundDetail(wx.Panel):
         self.SetSizer(sizer)
         self.Layout()
 
-        print(provide)
-        print(pay)
-        print(round(sy, 2))
-        print(round(sq, 2))
+    def grid(self):
         pass
 
     def refresh(self, user):
