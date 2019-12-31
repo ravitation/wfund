@@ -4,6 +4,7 @@ import wx
 from model.fund import FundApply
 from utils.compute import Compute
 from model.fund import FundKind
+from view.component.part import Part
 
 
 class PerStatPanel(wx.Panel):
@@ -20,11 +21,11 @@ class PerStatPanel(wx.Panel):
     def show(self):
         self.applies = FundApply.find(where="user_id=? and state='未报销'", args=self.user.id)
         self.money_dict = self.all_money(self.applies)
-        title = self.GenShowText('个人统计', self.title_font, style=wx.ALIGN_CENTER)
+        title = Part.GenShowText(self, '个人统计', self.title_font, style=wx.ALIGN_CENTER)
         h_line = wx.StaticLine(self, -1)
 
-        all = self.GenShowText(round(self.money_dict['all'], 2), self.default_font, wx.ALIGN_CENTER)
-        allSizer = self.GenStaticBoxSizer('总计（元）', [all], wx.ALL | wx.EXPAND)
+        all = Part.GenShowText(self, round(self.money_dict['all'], 2), self.default_font, wx.ALIGN_CENTER)
+        allSizer = Part.GenStaticBoxSizer(self, '总计（元）', [all], wx.ALL | wx.EXPAND)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(title, 0, wx.EXPAND | wx.ALL, 5)
@@ -68,27 +69,12 @@ class PerStatPanel(wx.Panel):
         h_sizer = wx.BoxSizer(wx.HORIZONTAL)
         for k in self.money_dict:
             if k != 'all':
-                txt = self.GenShowText(round(items[k]['money'], 2), self.default_font, wx.ALIGN_CENTER)
-                sizer = self.GenStaticBoxSizer(items[k]['name'], [txt], wx.ALL | wx.EXPAND)
+                txt = Part.GenShowText(self, round(items[k]['money'], 2), self.default_font, wx.ALIGN_CENTER)
+                sizer = Part.GenStaticBoxSizer(self, items[k]['name'], [txt], wx.ALL | wx.EXPAND)
                 h_sizer.Add(sizer, 1, wx.ALL, 5)
         return h_sizer
 
-    def GenStaticBoxSizer(self, box_label, items, flags=wx.ALL):
-        box = wx.StaticBox(self, -1, box_label)
-        sizer = wx.StaticBoxSizer(box, wx.VERTICAL)
-        for item in items:
-            sizer.Add(item, 0, flags, 5)
-        return sizer
-
-    def GenShowText(self, txt, font=None, style=wx.NORMAL):
-        text = wx.StaticText(self, -1, str(txt), style=style)
-        print(txt, text)
-        if font:
-            text.SetFont(font)
-        return text
-
     def refresh(self, user):
         self.user = user
-        self.applies = FundApply.find(where="user_id=? and state='未报销'", args=user.id)
         self.DestroyChildren()
         self.show()

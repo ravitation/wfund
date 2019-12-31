@@ -8,6 +8,7 @@ from view.fund.about import WFundAbout
 from view.maintain import MaintainPanel
 from view.fund.per_stat import PerStatPanel
 from view.fund.cls_stat import ClsStatPanel
+from view.fund.detail import FundDetail
 from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
@@ -28,8 +29,8 @@ class WFundFrame(wx.Frame):
         self.panel_list = []
         self.SetBackgroundColour('White')
 
-        self.login()
         self.initStatusBar()
+        self.login()
         self.initMenu()
         self.createPanel()
 
@@ -44,6 +45,8 @@ class WFundFrame(wx.Frame):
     def menuData(self):
         return [("操作", (
             ("新增申请\tCtrl+N", "", self.OnApplyFund, 'N'),
+            ("未报销\tCtrl+W", "", self.OnUnPay, 'W'),
+            ("已报销\tCtrl+Y", "", self.OnHadPay, 'Y'),
             ("统计", (
                 ("详情\tCtrl+D", "", self.OnDetail, 'D'),
                 ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
@@ -78,25 +81,38 @@ class WFundFrame(wx.Frame):
     def createPanel(self):
         self.hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.SetSizer(self.hbox)
-        self.OnPerStat(None)
+        # self.OnPerStat(None)
+        self.OnDetail(None)
 
     def OnApplyFund(self, event):
         self.form = Form(self, -1, user=self.user)
         if self.form.ShowModal() == wx.ID_OK:
             self.flush()
 
+    def OnUnPay(self, event):
+        self.SetStatusText('当前页面：未报销', 1)
+        self.fund_detail_panel = None
+        self.changePanel('view.fund.detail', 'FundDetail', self.fund_detail_panel)
+
+    def OnHadPay(self, event):
+        self.SetStatusText('当前页面：已报销', 1)
+        self.had_pay_panel = None
+        self.changePanel('view.fund.detail', 'FundDetail', self.had_pay_panel)
+
     def OnPerStat(self, event):
+        self.SetStatusText('当前页面：个人统计', 1)
         self.per_stat_panel = None
         self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel)
 
     def OnClsStat(self, event):
+        self.SetStatusText('当前页面：组内统计', 1)
         self.per_cls_panel = None
         self.changePanel('view.fund.cls_stat', 'ClsStatPanel', self.per_cls_panel)
 
     def OnDetail(self, event):
-        reg = Register(self, -1)
-        if reg.ShowModal() == wx.ID_OK:
-            print('register success')
+        self.SetStatusText('当前页面：详情', 1)
+        self.fund_detail_panel = None
+        self.changePanel('view.fund.detail', 'FundDetail', self.fund_detail_panel)
 
     def OnAddUser(self, event):
         if not self.isRole('ADMIN'):
@@ -134,6 +150,7 @@ class WFundFrame(wx.Frame):
                     sign.update()
 
     def OnMaintain(self, event):
+        self.SetStatusText('当前页面：维护', 1)
         self.maintain_panel = None
         self.changePanel('view.maintain', 'MaintainPanel', self.maintain_panel)
 
@@ -144,6 +161,7 @@ class WFundFrame(wx.Frame):
         else:
             if log.ShowModal() == wx.ID_OK:
                 self.user = log.log_user
+        self.SetStatusText("登录用户："+self.user.name, 0)
 
     def OnAbout(self, event):
         dlg = WFundAbout(self)
@@ -177,6 +195,7 @@ class WFundFrame(wx.Frame):
     def flush(self):
         for panel in self.panel_list:
             panel.refresh(self.user)
+
 
 
 
