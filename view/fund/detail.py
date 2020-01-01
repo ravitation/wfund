@@ -6,7 +6,6 @@ from utils.compute import Compute
 from model.common import User
 from model.fund import FundPayRecord, FundProvide, FundApply
 from view.component.part import Part
-from view.component.table import GenericTable
 
 
 class FundDetail(wx.Panel):
@@ -58,16 +57,8 @@ class FundDetail(wx.Panel):
 
     def init_grid(self):
         colLabels = ['时间', '操作', '金额（元）', '相关人员']
-        grid = wx.grid.Grid(self)
-        table = GenericTable(data=self.get_grid_data(), colLabels=colLabels)
-        grid.SetTable(table, True)
-        grid.SetColSize(0, 180)
-
-        # grid.ForceRefresh()
-
-        # grid.BeginBatch()
-        # process
-        # grid.EndBatch()
+        grid = Part.GenGrid(self, colLabels, self.get_grid_data())
+        grid.EnableEditing(False)
         return grid
 
     def get_grid_data(self):

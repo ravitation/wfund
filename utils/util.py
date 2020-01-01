@@ -48,3 +48,8 @@ def md5_check(plain, cipher):
     :return: True or False
     """
     return md5_encode(plain) == cipher
+
+
+if __name__ == '__main__':
+    pwd = md5_encode('123')
+    print(pwd)

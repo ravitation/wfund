@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
-from model.fund import FundApply
+from model.fund import FundApply, FundKind
+from model.common import User
 from utils.compute import Compute
-from model.fund import FundKind
 from view.component.part import Part
 
 
@@ -20,24 +20,28 @@ class ClsStatPanel(wx.Panel):
 
     def show(self):
         self.applies = FundApply.find(where="state='未报销'")
+        self.fund_kind = FundKind.all()
+        self.users = User.all()
         self.money_dict = self.all_money(self.applies)
-        title = Part.GenShowText(self, '组内统计', self.title_font, style=wx.ALIGN_CENTER)
-        h_line = wx.StaticLine(self, -1)
+        # title = Part.GenShowText(self, '组内统计', self.title_font, style=wx.ALIGN_CENTER)
+        # h_line = wx.StaticLine(self, -1)
 
         all = Part.GenShowText(self, round(self.money_dict['all'], 2), self.default_font, wx.ALIGN_CENTER)
         allSizer = Part.GenStaticBoxSizer(self, '总计（元）', [all], wx.ALL | wx.EXPAND)
 
+        self.grid = self.init_grid()
+
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(title, 0, wx.EXPAND | wx.ALL, 5)
-        sizer.Add(h_line, 0, wx.EXPAND | wx.ALL, 5)
+        # sizer.Add(title, 0, wx.EXPAND | wx.ALL, 5)
+        # sizer.Add(h_line, 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(allSizer, 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(self.show_detail(), 0, wx.EXPAND | wx.ALL, 5)
+        sizer.Add(self.grid, 1, wx.EXPAND | wx.ALL, 5)
         self.SetSizer(sizer)
         self.Layout()
 
     def all_money(self, applies):
         total = Compute.zero()
-        kind = FundKind.all()
         dic = {}
         for apply in applies:
             total += apply.money
@@ -45,22 +49,22 @@ class ClsStatPanel(wx.Panel):
                 if 'meal' in dic.keys():
                     dic['meal']['money'] = dic['meal']['money'] + apply.money
                 else:
-                    dic['meal'] = {'name': kind[apply.kind] + '（元）', 'money': apply.money}
+                    dic['meal'] = {'name': self.fund_kind[apply.kind] + '（元）', 'money': apply.money}
             if apply.kind == '03':
                 if 'oil' in dic.keys():
                     dic['oil']['money'] = dic['oil']['money'] + apply.money
                 else:
-                    dic['oil'] = {'name': kind[apply.kind] + '（元）', 'money': apply.money}
+                    dic['oil'] = {'name': self.fund_kind[apply.kind] + '（元）', 'money': apply.money}
             if apply.kind == '02':
                 if 'taxi' in dic.keys():
                     dic['taxi']['money'] = dic['taxi']['money'] + apply.money
                 else:
-                    dic['taxi'] = {'name': kind[apply.kind] + '（元）', 'money': apply.money}
+                    dic['taxi'] = {'name': self.fund_kind[apply.kind] + '（元）', 'money': apply.money}
             if apply.kind == '04':
                 if 'other' in dic.keys():
                     dic['other']['money'] = dic['other']['money'] + apply.money
                 else:
-                    dic['other'] = {'name': kind[apply.kind] + '（元）', 'money': apply.money}
+                    dic['other'] = {'name': self.fund_kind[apply.kind] + '（元）', 'money': apply.money}
         dic['all'] = total
         return dic
 
@@ -73,6 +77,39 @@ class ClsStatPanel(wx.Panel):
                 sizer = Part.GenStaticBoxSizer(self, items[k]['name'], [txt], wx.ALL | wx.EXPAND)
                 h_sizer.Add(sizer, 1, wx.ALL, 5)
         return h_sizer
+
+    def init_grid(self):
+        colLabels = ['人员', self.fund_kind['01'], self.fund_kind['02'], self.fund_kind['03'], self.fund_kind['04']]
+        grid = Part.GenGrid(self, colLabels, self.get_grid_data())
+        grid.EnableEditing(False)
+        return grid
+
+    def get_grid_data(self):
+        db_data = {}
+        data = {}
+        for item in self.applies:
+            if item.user_id in db_data.keys():
+                db_data[item.user_id].append(item)
+            else:
+                db_data[item.user_id] = [item]
+
+        row = 0
+        for k in db_data:
+            items = db_data[k]
+            dic = self.all_money(items)
+            data[(row, 0)] = self.users[k]
+            for i in dic:
+                col = 0
+                key = ()
+                print(i)
+                if i == 'meal': key = (row, (col + 1))
+                if i == 'taxi': key = (row, (col + 2))
+                if i == 'oil': key = (row, (col + 3))
+                if i == 'other': key = (row, (col + 4))
+                if i != 'all': data[key] = str(round(dic[i]['money'], 2))
+                col += 1
+            row += 1
+        return data
 
     def refresh(self, user):
         self.user = user

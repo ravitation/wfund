@@ -14,6 +14,7 @@ class Login(wx.Dialog):
 
         nameLbl = wx.StaticText(self, -1, '姓名：', size=(50, -1), style=wx.ALIGN_RIGHT)
         self.name = wx.TextCtrl(self, -1, validator=NotEmptyValidator(), name='name')
+        self.Center()
 
         nameSizer  = wx.BoxSizer(wx.HORIZONTAL)
         nameSizer.Add(nameLbl, 0, wx.ALL, 5)
@@ -53,7 +54,7 @@ class Login(wx.Dialog):
             else:
                 wx.MessageBox('初始化密码错误，登录失败！', 'Error')
         else:
-            wx.MessageBox('用户不存在！', 'Error')
+            wx.MessageBox('用户不存在, 请使用用户名和密码登录！', 'Error')
 
     def OnLog(self, event):
         code = self.name.GetValue()

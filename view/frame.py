@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
+from wx import adv
 import time
 import importlib
 from utils.menu import Menu
@@ -13,7 +14,7 @@ from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
 from model.common import Config
-from resources.images import ICON
+from resources.images import ICON, SPLASH_PIC
 from utils.img_tran import EmbedImg
 
 
@@ -31,6 +32,7 @@ class WFundFrame(wx.Frame):
 
         self.initStatusBar()
         self.login()
+        self.splash()
         self.initMenu()
         self.createPanel()
 
@@ -45,16 +47,13 @@ class WFundFrame(wx.Frame):
     def menuData(self):
         return [("操作", (
             ("新增申请\tCtrl+N", "", self.OnApplyFund, 'N'),
-            ("未报销\tCtrl+W", "", self.OnUnPay, 'W'),
-            ("已报销\tCtrl+Y", "", self.OnHadPay, 'Y'),
-            ("统计", (
-                ("详情\tCtrl+D", "", self.OnDetail, 'D'),
-                ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
-                ("组内统计\tCtrl+G", "", self.OnClsStat, 'G')
-            )),
             ("", "", "", ''),
             ("关闭\tCtrl+Q", "", self.OnCloseWindow, 'Q')),
-            ), ('管理', (
+            ),("查看", (
+                ("经费详情\tCtrl+D", "", self.OnDetail, 'D'),
+                ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
+                ("组内统计\tCtrl+G", "", self.OnClsStat, 'G'),
+            )), ('管理', (
                 ("添加用户\tCtrl+Alt+A", "", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 ("登录其他用户\tCtrl+Alt+U", "", self.OnLogOther, 'U', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 ("申请开关", (
@@ -129,6 +128,7 @@ class WFundFrame(wx.Frame):
         log = Login(self, -1)
         if log.ShowModal() == wx.ID_OK:
             self.user = log.log_user
+        self.SetStatusText("登录用户："+self.user.name, 0)
         self.flush()
 
     def OnApplySign(self, event):
@@ -196,6 +196,10 @@ class WFundFrame(wx.Frame):
         for panel in self.panel_list:
             panel.refresh(self.user)
 
+    def splash(self):
+        bmp = EmbedImg(SPLASH_PIC).GetBitmap()
+        adv.SplashScreen(bmp, adv.SPLASH_CENTER_ON_SCREEN | adv.SPLASH_TIMEOUT, 1000, None, -1)
+        wx.Yield()
 
 
 

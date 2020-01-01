@@ -14,7 +14,6 @@ table_data = {(1,1): 'Here',
 class GenericTable(wx.grid.GridTableBase):
     def __init__(self, data=None, rowLabels=None, colLabels=None):
         wx.grid.GridTableBase.__init__(self)
-        print(data)
         if data:
             self.data = data
         else:
@@ -74,11 +73,14 @@ class GenericTable(wx.grid.GridTableBase):
         self.data[(row, col)] = value
 
     def GetAttr(self, row, col, kind):
-        if self.data.get((row, 1)) == '增加':
-            attr = self.add
+        val = self.data.get((row, 1))
+        if val != '增加' and val != '报销':
+            attr = [self.even, self.odd][row % 2]
         else:
-            attr = self.mius
-        # attr = [self.even, self.odd][row % 2]
+            if self.data.get((row, 1)) == '增加':
+                attr = self.add
+            else:
+                attr = self.mius
         attr.IncRef()
         return attr
 

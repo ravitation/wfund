@@ -116,4 +116,3 @@ class Form(wx.Dialog):
         wx.MessageBox('保存成功！', 'Error')
         self.EndModal(wx.ID_OK)
 
-
