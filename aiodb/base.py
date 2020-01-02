@@ -95,8 +95,13 @@ class Model(dict, metaclass=ModelMetaclass):
         n = asyncio.run_coroutine_threadsafe(self.__update(), var.__loop)
         return n.result()
 
-    def delete(self, key=None):
-        n = asyncio.run_coroutine_threadsafe(self.__delete(key=key), var.__loop)
+    def delete(self):
+        n = asyncio.run_coroutine_threadsafe(self.__delete(), var.__loop)
+        return n.result()
+
+    @classmethod
+    def delete_by_key(cls, key=None):
+        n = asyncio.run_coroutine_threadsafe(cls.__delete_by_key(key=key), var.__loop)
         return n.result()
 
     @classmethod
@@ -154,12 +159,23 @@ class Model(dict, metaclass=ModelMetaclass):
             print('failed to update record: affected rows: %s' % rows)
 
     @asyncio.coroutine
-    def __delete(self, key=None):
+    def __delete(self):
+        args = [self.__get_value(self.__primary_key__)]
+        rows = yield from execute(self.__delete__, args)
+        if rows != 1:
+            print('failed to delete by primary key: affected rows: %s' % rows)
+
+    @classmethod
+    @asyncio.coroutine
+    def __delete_by_key(cls, key=None):
+        args = []
         if key is not None:
             args = [key]
+            sql = cls.__delete__
         else:
-            args = [self.__get_value(self.__primary_key__)]
-        rows = yield from execute(self.__delete__, args)
+            sql = 'delete from `%s`' % cls.__table__
+
+        rows = yield from execute(sql, args)
         if rows != 1:
             print('failed to delete by primary key: affected rows: %s' % rows)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
+import datetime
 from wx import adv
 from view.component.check_dialog import CheckBox
 from model.common import User
@@ -10,13 +11,20 @@ from utils.util import now_time_str
 
 
 class Form(wx.Dialog):
-    def __init__(self, parent, ID, user=None, title='新增'):
+    def __init__(self, parent, ID, user=None, applyId=None, title='新增'):
         wx.Dialog.__init__(self, parent, ID, size=(420, 300))
         self.SetTitle(title)
         self.data = {}
         self.kinds = FundKind.all()
         self.allPersons = User.all()
         self.user = user
+        self.update = False
+        if applyId:
+            applies = FundApply.find(where='id=?', args=applyId)
+            print(applies)
+            if len(applies) > 0:
+                self.apply = applies[0]
+                self.update = True
 
         self.nameLbl = wx.StaticText(self, -1, '姓名：', size=(60, -1), style=wx.ALIGN_RIGHT)
         self.name = wx.TextCtrl(self, -1, validator=NotEmptyValidator(), name='name', value=self.user.name)
@@ -81,17 +89,29 @@ class Form(wx.Dialog):
         self.init_data()
 
     def init_data(self):
-        dt = self.date.GetValue()
-        df = dt.Format('%Y年%m月%d日')
-        self.data.setdefault('date', df)
+        if self.update:
+            self.data = self.apply
 
-        self.persons.SetLabel(self.user.name)
-        self.data.setdefault('persons', self.persons.GetLabel())
+            self.persons.SetLabel(self.apply.persons)
 
-        self.kind.SetSelection(0)
-        self.data.setdefault('kind', [k for k in self.kinds.keys()][self.kind.GetSelection()])
+            keys = list(FundKind.all().keys())
+            self.kind.SetSelection(keys.index(self.apply.kind))
 
-        self.data.setdefault('persons', self.persons.GetLabel())
+            dt = wx.DateTime(datetime.datetime.strptime(self.apply.date, '%Y年%m月%d日'))
+            self.date.SetValue(dt)
+
+            self.money.SetValue(str(round(self.apply.money, 2)))
+            self.reason.SetValue(self.apply.reason)
+        else:
+            dt = self.date.GetValue()
+            df = dt.Format('%Y年%m月%d日')
+            self.data.setdefault('date', df)
+
+            self.persons.SetLabel(self.user.name)
+            self.data.setdefault('persons', self.persons.GetLabel())
+
+            self.kind.SetSelection(0)
+            self.data.setdefault('kind', [k for k in self.kinds.keys()][self.kind.GetSelection()])
 
     def OnCheckPeople(self, event):
         self.check = CheckBox(self, -1, checks=[k for k in self.allPersons.values()], defaults=self.persons.GetLabel().split(' '))
@@ -110,9 +130,14 @@ class Form(wx.Dialog):
         self.data['kind'] = [k for k in self.kinds.keys()][eo.GetSelection()]
 
     def OnSave(self, event):
-        apply = FundApply(user_id=self.user.id, state='未报销', create_time=now_time_str(), update_time=now_time_str(),
-                          **self.data)
-        apply.save()
-        wx.MessageBox('保存成功！', 'Error')
+        if self.update:
+            apply = FundApply(**self.data)
+            apply.update()
+            wx.MessageBox('修改成功！', 'Error')
+        else:
+            apply = FundApply(user_id=self.user.id, state='未报销', create_time=now_time_str(), update_time=now_time_str(),
+                              **self.data)
+            apply.save()
+            wx.MessageBox('保存成功！', 'Error')
         self.EndModal(wx.ID_OK)
 

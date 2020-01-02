@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
+import wx.grid
 from model.fund import FundApply
 from utils.compute import Compute
 from model.fund import FundKind
 from view.component.part import Part
+from view.fund.form import Form
 
 
 class PerStatPanel(wx.Panel):
@@ -16,15 +18,17 @@ class PerStatPanel(wx.Panel):
 
         self.SetBackgroundColour('White')
         self.user = user
+        self.init()
+
+    def init(self):
         self.show()
+        self.createPopupMenu()
 
     def show(self):
         self.applies = FundApply.find(where="user_id=? and state='未报销'", args=self.user.id)
         self.fund_kind = FundKind.all()
 
         self.money_dict = self.all_money(self.applies)
-        # title = Part.GenShowText(self, '个人统计', self.title_font, style=wx.ALIGN_CENTER)
-        # h_line = wx.StaticLine(self, -1)
 
         all = Part.GenShowText(self, round(self.money_dict['all'], 2), self.default_font, wx.ALIGN_CENTER)
         allSizer = Part.GenStaticBoxSizer(self, '总计（元）', [all], wx.ALL | wx.EXPAND)
@@ -32,8 +36,6 @@ class PerStatPanel(wx.Panel):
         self.grid = self.init_grid()
 
         sizer = wx.BoxSizer(wx.VERTICAL)
-        # sizer.Add(title, 0, wx.EXPAND | wx.ALL, 5)
-        # sizer.Add(h_line, 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(allSizer, 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(self.show_detail(), 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(self.grid, 1, wx.EXPAND | wx.ALL, 5)
@@ -79,8 +81,13 @@ class PerStatPanel(wx.Panel):
         return h_sizer
 
     def init_grid(self):
-        colLabels = ['日期', '类型', '金额（元）', '相关人员']
-        grid = Part.GenGrid(self, colLabels, self.get_grid_data())
+        colLabels = ['日期', '类型', '金额（元）', '原因', '相关人员']
+        self.grid_data = self.get_grid_data()
+        print(self.grid_data)
+        grid = Part.GenGrid(self, colLabels, {k: self.grid_data[k] for k in self.grid_data if k[1] != 5})
+        grid.SetColSize(0, 175)
+        grid.SetColSize(3, 200)
+        grid.SetColSize(4, 200)
         grid.EnableEditing(False)
         return grid
 
@@ -89,16 +96,42 @@ class PerStatPanel(wx.Panel):
         data = {}
         index = 0
         for item in self.applies:
-            db_data[index] = (item.date, self.fund_kind[item.kind], round(item.money), item.persons, item.id)
+            db_data[index] = (item.date, self.fund_kind[item.kind], round(item.money), item.reason, item.persons, item.id)
             index += 1
 
         for i in range(len(db_data)):
             item = db_data[i]
             for k in range(len(item)):
-                if k < 4: data[(i, k)] = item[k]
+                data[(i, k)] = item[k]
         return data
+
+    def menuData(self):
+        return [("修改", "", self.OnPopupEditSelected, ''),
+                ("", "", "", ''),
+                ("删除", "", self.OnPopupDeleteSelected, '')]
+
+    def createPopupMenu(self):
+        self.popupmenu = wx.Menu()
+        self.popupmenu = Part.CreateMenu(self, self.menuData())
+        self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.OnShowPopup, self.grid)
+
+    def OnShowPopup(self, event):
+        pos = event.GetPosition()
+        self.select_grid_row = event.GetRow()
+        self.grid.PopupMenu(self.popupmenu, pos)
+
+    def OnPopupEditSelected(self, event):
+        applyId = self.grid_data.get((self.select_grid_row, 5))
+        self.form = Form(self, -1, user=self.user, applyId=applyId)
+        if self.form.ShowModal() == wx.ID_OK:
+            self.refresh(self.user)
+
+    def OnPopupDeleteSelected(self, event):
+        applyId = self.grid_data.get((self.select_grid_row, 5))
+        FundApply.delete_by_key(applyId)
+        self.refresh(self.user)
 
     def refresh(self, user):
         self.user = user
         self.DestroyChildren()
-        self.show()
+        self.init()

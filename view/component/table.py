@@ -69,6 +69,13 @@ class GenericTable(wx.grid.GridTableBase):
         else:
             return ''
 
+    def GetDataValue(self, row, col):
+        value = self.data.get((row, col))
+        if value is not None:
+            return value
+        else:
+            return ''
+
     def SetValue(self, row, col, value):
         self.data[(row, col)] = value
 

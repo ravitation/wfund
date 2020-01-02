@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
+import wx.grid
 from model.fund import FundApply, FundKind
 from model.common import User
 from utils.compute import Compute
@@ -16,15 +17,18 @@ class ClsStatPanel(wx.Panel):
 
         self.SetBackgroundColour('White')
         self.user = user
+
+        self.init()
+
+    def init(self):
         self.show()
+        self.createPopupMenu()
 
     def show(self):
         self.applies = FundApply.find(where="state='未报销'")
         self.fund_kind = FundKind.all()
         self.users = User.all()
         self.money_dict = self.all_money(self.applies)
-        # title = Part.GenShowText(self, '组内统计', self.title_font, style=wx.ALIGN_CENTER)
-        # h_line = wx.StaticLine(self, -1)
 
         all = Part.GenShowText(self, round(self.money_dict['all'], 2), self.default_font, wx.ALIGN_CENTER)
         allSizer = Part.GenStaticBoxSizer(self, '总计（元）', [all], wx.ALL | wx.EXPAND)
@@ -32,8 +36,6 @@ class ClsStatPanel(wx.Panel):
         self.grid = self.init_grid()
 
         sizer = wx.BoxSizer(wx.VERTICAL)
-        # sizer.Add(title, 0, wx.EXPAND | wx.ALL, 5)
-        # sizer.Add(h_line, 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(allSizer, 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(self.show_detail(), 0, wx.EXPAND | wx.ALL, 5)
         sizer.Add(self.grid, 1, wx.EXPAND | wx.ALL, 5)
@@ -80,6 +82,7 @@ class ClsStatPanel(wx.Panel):
 
     def init_grid(self):
         colLabels = ['人员', self.fund_kind['01'], self.fund_kind['02'], self.fund_kind['03'], self.fund_kind['04']]
+        print(colLabels)
         grid = Part.GenGrid(self, colLabels, self.get_grid_data())
         grid.EnableEditing(False)
         return grid
@@ -101,7 +104,6 @@ class ClsStatPanel(wx.Panel):
             for i in dic:
                 col = 0
                 key = ()
-                print(i)
                 if i == 'meal': key = (row, (col + 1))
                 if i == 'taxi': key = (row, (col + 2))
                 if i == 'oil': key = (row, (col + 3))
@@ -109,7 +111,31 @@ class ClsStatPanel(wx.Panel):
                 if i != 'all': data[key] = str(round(dic[i]['money'], 2))
                 col += 1
             row += 1
+        print(data)
         return data
+
+    def menuData(self):
+        return [("报销", "", self.OnPopupPaySelected, '')]
+
+    def createPopupMenu(self):
+        self.popupmenu = wx.Menu()
+        self.popupmenu = Part.CreateMenu(self, self.menuData())
+        self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.OnShowPopup, self.grid)
+
+    def OnShowPopup(self, event):
+        pos = event.GetPosition()
+        self.select_grid_row = event.GetRow()
+        self.grid.PopupMenu(self.popupmenu, pos)
+
+    def OnPopupPaySelected(self, event):
+        col_nums = self.grid.GetTable().GetNumberCols()
+        pay = Compute.zero()
+        for i in range(1, col_nums):
+            print(i)
+            pay += Compute.parse(self.grid.GetTable().GetDataValue(self.select_grid_row, i))
+            pass
+        applyId = self.grid.GetTable().GetDataValue(self.select_grid_row, 1)
+        print(applyId)
 
     def refresh(self, user):
         self.user = user
