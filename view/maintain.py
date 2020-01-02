@@ -1,81 +1,59 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
-from view.component.datapick import DatePick
-from model.fund import FundApply
+from model.fund import FundApply, FundPayRecord
+from model.common import User
+from model.fund import FundProvide
+from utils.compute import Compute
+from view.component.part import Part
 from utils.util import now_time_str
 
 
 class MaintainPanel(wx.Panel):
-    def __init__(self, parent, ID):
+    def __init__(self, parent, ID, user=None):
         wx.Panel.__init__(self, parent, ID)
         self.SetBackgroundColour('White')
         self.parent = parent
+        self.user = user
 
-        topLbl = wx.StaticText(self, -1, 'New Apply')
-        topLbl.SetFont(wx.Font(18, wx.SWISS, wx.NORMAL, wx.BOLD))
+        self.title_font = wx.Font(20, wx.SWISS, wx.NORMAL, wx.BOLD)
+        self.default_font = wx.Font(16, wx.SWISS, wx.NORMAL, wx.BOLD)
 
-        nameLbl = wx.StaticText(self, -1, '申请人:')
-        self.name = wx.TextCtrl(self, -1, "")
-        kindLbl = wx.StaticText(self, -1, '类型:')
-        self.kind = wx.TextCtrl(self, -1, "")
-        dateLbl = wx.StaticText(self, -1, '日期:')
-        self.date = wx.TextCtrl(self, -1, '')
-        moneyLbl = wx.StaticText(self, -1, '金额:')
-        self.money = wx.TextCtrl(self, -1, '')
-        dscLbl = wx.StaticText(self, -1, '描述:')
-        self.dsc = wx.TextCtrl(self, -1, '')
+        self.init()
 
-        calBtn = wx.Button(self, -1, '选择')
-        self.Bind(wx.EVT_BUTTON, self.OnCalendarCtrl, calBtn)
+    def init(self):
+        self.provide = FundProvide.find()
+        self.pay = FundPayRecord.find()
+        self.users = User.find()
 
-        hLine = wx.StaticLine(self, wx.EXPAND)
+        provide = Compute.zero()
+        for item in self.provide:
+            provide += item.money
 
-        saveBtn = wx.Button(self, -1, '保存')
-        self.Bind(wx.EVT_BUTTON, self.OnSaveApply, saveBtn)
+        pay = Compute.zero()
+        for item in self.pay:
+            pay += item.money
 
-        sizer = wx.GridBagSizer(vgap=5, hgap=5)
-        sizer.Add(topLbl, pos=(0, 0), span=(1, 4), flag=wx.EXPAND)
-        sizer.Add(nameLbl, pos=(1, 0), flag=wx.EXPAND)
-        sizer.Add(self.name, pos=(1, 1), flag=wx.EXPAND)
-        sizer.Add(kindLbl, pos=(1, 2), flag=wx.EXPAND)
-        sizer.Add(self.kind, pos=(1, 3), flag=wx.EXPAND)
-        sizer.Add(dateLbl, pos=(2, 0), flag=wx.EXPAND)
-        dateSizer = wx.BoxSizer(wx.HORIZONTAL)
-        dateSizer.Add(self.date, wx.EXPAND, border=1)
-        dateSizer.Add(calBtn)
-        sizer.Add(dateSizer, pos=(2, 1), flag=wx.EXPAND)
-        sizer.Add(moneyLbl, pos=(2, 2), flag=wx.EXPAND)
-        sizer.Add(self.money, pos=(2, 3), flag=wx.EXPAND)
-        sizer.Add(dscLbl, pos=(3, 0), flag=wx.EXPAND)
-        sizer.Add(self.dsc, pos=(3, 1), span=(1, 3), flag=wx.EXPAND)
-        sizer.Add(hLine, pos=(4, 0), span=(1, 4), flag=wx.EXPAND)
-        sizer.Add(saveBtn, pos=(5, 2), flag=wx.EXPAND)
+        sy = provide - pay
+        unuse = Part.GenShowText(self, round(sy, 2), self.default_font, wx.ALIGN_CENTER)
+        add_btn = wx.Button(self, -1, '+', size=(25, 25), style=wx.ALIGN_CENTER_VERTICAL)
+        self.Bind(wx.EVT_BUTTON, self.OnAddFund, add_btn)
+        unuse_sizer = Part.GenStaticBoxSizer(self, '剩余（元）', [unuse, add_btn], wx.ALL, static_flags=wx.HORIZONTAL)
 
-        sizer.AddGrowableCol(1)
-        sizer.AddGrowableCol(3)
-        self.SetSizer(sizer)
-        sizer.Fit(self)
-        sizer.SetSizeHints(self)
+        v_sizer = wx.BoxSizer(wx.VERTICAL)
+        v_sizer.Add(unuse_sizer, 0, wx.ALL, 5)
+        self.SetSizer(v_sizer)
+        self.Layout()
 
-
-    def OnCalendarCtrl(self, event):
-        dlg = DatePick(self)
+    def OnAddFund(self, event):
+        dlg = wx.TextEntryDialog(None, '输入金额：', '', '0.0',  style=wx.OK | wx.CANCEL)
         if dlg.ShowModal() == wx.ID_OK:
-            date = dlg.datepick.GetDate()
-            s = date.Format('%Y-%m-%d')
-            self.date.SetValue(s)
+            provide = FundProvide(money=dlg.GetValue(), create_time=now_time_str())
+            provide.save()
+            self.refresh(self.user)
+        pass
 
-    def OnSaveApply(self, event):
-        name = self.name.GetValue()
-        kind = self.kind.GetValue()
-        date = self.kind.GetValue()
-        money = self.money.GetValue()
-        dsc = self.dsc.GetValue()
-
-        apply = FundApply(type=kind, state='', money=money, date=date, reason=dsc, persons='',
-                          update_time=now_time_str(), create_time=now_time_str())
-        apply.save()
-        print(apply)
-        print('save')
-        self.parent.OnApplyFund(None)
+    def refresh(self, user):
+        self.user = user
+        self.DestroyChildren()
+        self.init()

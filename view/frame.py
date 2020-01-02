@@ -6,10 +6,6 @@ import time
 import importlib
 from utils.menu import Menu
 from view.fund.about import WFundAbout
-from view.maintain import MaintainPanel
-from view.fund.per_stat import PerStatPanel
-from view.fund.cls_stat import ClsStatPanel
-from view.fund.detail import FundDetail
 from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
@@ -59,7 +55,8 @@ class WFundFrame(wx.Frame):
                 ("申请开关", (
                     ("开\tCtrl+Alt+O", "", self.OnApplySign, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
                     ("关\tCtrl+Alt+C", "", self.OnApplySign, 'C', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
-                ))
+                )),
+                ("维护\tCtrl+Alt+W", "", self.OnMaintain, 'W', wx.ACCEL_CTRL | wx.ACCEL_ALT)
             )), ("帮助", (
                 ("&关于\tCtrl+Shift+A", "", self.OnAbout, 'A', wx.ACCEL_CTRL | wx.ACCEL_SHIFT),
                 ("&说明\tCtrl+E", "", self.OnAbout, 'E')

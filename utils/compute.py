@@ -16,6 +16,10 @@ class Compute:
     def get(cls, dec):
         return round(dec, 2)
 
+    @classmethod
+    def parse(cls, str):
+        return decimal.Decimal(str)
+
 
 if __name__ == '__main__':
     a = decimal.Decimal(1115615.50000) + decimal.Decimal(15.51001)
