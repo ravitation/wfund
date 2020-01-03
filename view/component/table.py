@@ -2,6 +2,7 @@
 # _*_ coding=utf-8 _*_
 import wx
 import wx.grid
+from utils.util import max_times
 
 
 table_data = {(1,1): 'Here',
@@ -38,14 +39,12 @@ class GenericTable(wx.grid.GridTableBase):
         self.mius.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
 
     def GetNumberRows(self):
-        dict_keys = self.data.keys()
-        keys = list(dict_keys)
-        return keys[len(keys) - 1][0] + 1
+        return max_times([k[1] for k in self.data.keys()])
 
     def GetNumberCols(self):
-        dict_keys = self.data.keys()
-        keys = list(dict_keys)
-        return keys[len(keys) - 1][1] + 1
+        # num = max_times([k[0] for k in self.data.keys()])
+        # return num if num >= len(self.colLabels) else len(self.colLabels)
+        return len(self.colLabels)
 
     def GetColLabelValue(self, col):
         if self.colLabels:

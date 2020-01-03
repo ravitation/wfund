@@ -81,10 +81,16 @@ class ClsStatPanel(wx.Panel):
         return h_sizer
 
     def init_grid(self):
-        colLabels = ['人员', self.fund_kind['01'], self.fund_kind['02'], self.fund_kind['03'], self.fund_kind['04']]
-        print(colLabels)
+        colLabels = ['人员', self.fund_kind['01'] + '（元）', self.fund_kind['02'] + '（元）',
+                     self.fund_kind['03'] + '（元）', self.fund_kind['04'] + '（元）', '总计（元）']
         grid = Part.GenGrid(self, colLabels, self.get_grid_data())
         grid.EnableEditing(False)
+        grid.SetColSize(0, 110)
+        grid.SetColSize(1, 125)
+        grid.SetColSize(2, 125)
+        grid.SetColSize(3, 125)
+        grid.SetColSize(4, 125)
+        grid.SetColSize(5, 125)
         return grid
 
     def get_grid_data(self):
@@ -100,6 +106,7 @@ class ClsStatPanel(wx.Panel):
         for k in db_data:
             items = db_data[k]
             dic = self.all_money(items)
+            print(dic)
             data[(row, 0)] = self.users[k]
             for i in dic:
                 col = 0
@@ -109,9 +116,11 @@ class ClsStatPanel(wx.Panel):
                 if i == 'oil': key = (row, (col + 3))
                 if i == 'other': key = (row, (col + 4))
                 if i != 'all': data[key] = str(round(dic[i]['money'], 2))
+                if i == 'all':
+                    key = (row, col + 5)
+                    data[key] = str(round(dic[i], 2))
                 col += 1
             row += 1
-        print(data)
         return data
 
     def menuData(self):
@@ -131,11 +140,9 @@ class ClsStatPanel(wx.Panel):
         col_nums = self.grid.GetTable().GetNumberCols()
         pay = Compute.zero()
         for i in range(1, col_nums):
-            print(i)
             pay += Compute.parse(self.grid.GetTable().GetDataValue(self.select_grid_row, i))
             pass
         applyId = self.grid.GetTable().GetDataValue(self.select_grid_row, 1)
-        print(applyId)
 
     def refresh(self, user):
         self.user = user

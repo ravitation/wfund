@@ -50,6 +50,13 @@ def md5_check(plain, cipher):
     return md5_encode(plain) == cipher
 
 
+def max_times(ite):
+    dic = {}
+    for i in ite:
+        dic[i] = dic.get(i, 0) + 1
+    return max(list(dic.values()))
+
+
 if __name__ == '__main__':
     pwd = md5_encode('123')
     print(pwd)

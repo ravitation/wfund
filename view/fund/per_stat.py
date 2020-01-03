@@ -96,7 +96,8 @@ class PerStatPanel(wx.Panel):
         data = {}
         index = 0
         for item in self.applies:
-            db_data[index] = (item.date, self.fund_kind[item.kind], round(item.money), item.reason, item.persons, item.id)
+            db_data[index] = (item.date, self.fund_kind[item.kind], round(item.money, 2), item.reason, item.persons,
+                              item.id)
             index += 1
 
         for i in range(len(db_data)):
