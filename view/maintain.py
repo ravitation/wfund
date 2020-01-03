@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
-from model.fund import FundApply, FundPayRecord
+import wx.grid
+from model.fund import FundPayRecord
 from model.common import User, Role
 from model.fund import FundProvide
 from utils.compute import Compute
 from view.component.part import Part
+from view.component.register import Register
 from utils.util import now_time_str
 
 
@@ -48,6 +50,7 @@ class MaintainPanel(wx.Panel):
         v_sizer.Add(self.grid, 1, wx.ALL, 5)
         self.SetSizer(v_sizer)
         self.Layout()
+        self.createPopupMenu()
 
     def init_grid(self):
         colLabels = ['用户名', '姓名', '电话', '邮箱', '角色']
@@ -74,6 +77,25 @@ class MaintainPanel(wx.Panel):
             for k in range(len(item)):
                 data[(i, k)] = item[k]
         return data
+
+    def menuData(self):
+        return [("修改", "", self.OnPopupEditUser, '')]
+
+    def createPopupMenu(self):
+        self.popupmenu = wx.Menu()
+        self.popupmenu = Part.CreateMenu(self, self.menuData())
+        self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.OnShowPopup, self.grid)
+
+    def OnShowPopup(self, event):
+        pos = event.GetPosition()
+        self.select_grid_row = event.GetRow()
+        self.grid.PopupMenu(self.popupmenu, pos)
+
+    def OnPopupEditUser(self, event):
+        user_id = self.grid_data.get((self.select_grid_row, 5))
+        self.form = Register(self, -1, user=self.user, user_id=user_id)
+        if self.form.ShowModal() == wx.ID_OK:
+            self.refresh(self.user)
 
     def OnAddFund(self, event):
         dlg = wx.TextEntryDialog(None, '输入金额：', '', '0.0',  style=wx.OK | wx.CANCEL)

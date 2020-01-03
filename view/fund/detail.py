@@ -20,7 +20,7 @@ class FundDetail(wx.Panel):
     def init(self):
         self.provide = FundProvide.find()
         self.pay = FundPayRecord.find()
-        self.apply = FundApply.find()
+        self.apply = FundApply.find(where="state='未报销'")
         self.all_user = User.all()
 
         provide = Compute.zero()

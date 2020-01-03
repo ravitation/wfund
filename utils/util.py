@@ -57,6 +57,10 @@ def max_times(ite):
     return max(list(dic.values()))
 
 
+def isAdmin(user):
+    return user.role == 'ADMIN'
+
+
 if __name__ == '__main__':
     pwd = md5_encode('123')
     print(pwd)

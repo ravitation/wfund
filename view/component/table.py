@@ -35,7 +35,7 @@ class GenericTable(wx.grid.GridTableBase):
         self.add.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
 
         self.mius = wx.grid.GridCellAttr()
-        self.mius.SetBackgroundColour('light grey')
+        self.mius.SetBackgroundColour('medium goldenrod')
         self.mius.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
 
     def GetNumberRows(self):

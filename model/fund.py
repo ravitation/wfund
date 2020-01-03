@@ -48,13 +48,31 @@ class FundKind(Model):
         return [k.value for k in cls.find()]
 
 
+def init():
+    kinds = [{'code': '01', 'value':  '餐费'},
+             {'code': '02', 'value':  '出租'},
+             {'code': '03', 'value':  '油费'},
+             {'code': '04', 'value':  '杂项'}]
+
+    FundApply.drop()
+    FundApply.create()
+    FundPayRecord.drop()
+    FundPayRecord.create()
+    FundProvide.drop()
+    FundProvide.create()
+    FundKind.drop()
+    FundKind.create()
+
+    for item in kinds:
+        f = FundKind(**item)
+        f.save()
+
+
 if __name__ == '__main__':
     from aiodb.pool import init_connection, destory_connection
     from config.config import Db
+
     init_connection(**Db.__dict__)
-    FundApply.create()
-    FundPayRecord.create()
-    FundProvide.create()
-    FundKind.create()
-    # destory_connection()
+    init()
+    destory_connection()
     pass

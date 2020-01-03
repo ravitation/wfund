@@ -18,7 +18,10 @@ class Compute:
 
     @classmethod
     def parse(cls, str):
-        return decimal.Decimal(str)
+        if str:
+            return decimal.Decimal(str)
+        else:
+            return cls.zero()
 
 
 if __name__ == '__main__':

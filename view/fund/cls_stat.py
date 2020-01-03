@@ -2,9 +2,10 @@
 # _*_ coding=utf-8 _*_
 import wx
 import wx.grid
-from model.fund import FundApply, FundKind
+from model.fund import FundApply, FundKind, FundPayRecord
 from model.common import User
 from utils.compute import Compute
+from utils.util import now_time_str
 from view.component.part import Part
 
 
@@ -83,6 +84,7 @@ class ClsStatPanel(wx.Panel):
     def init_grid(self):
         colLabels = ['人员', self.fund_kind['01'] + '（元）', self.fund_kind['02'] + '（元）',
                      self.fund_kind['03'] + '（元）', self.fund_kind['04'] + '（元）', '总计（元）']
+        self.grid_data = self.get_grid_data()
         grid = Part.GenGrid(self, colLabels, self.get_grid_data())
         grid.EnableEditing(False)
         grid.SetColSize(0, 110)
@@ -108,13 +110,14 @@ class ClsStatPanel(wx.Panel):
             dic = self.all_money(items)
             print(dic)
             data[(row, 0)] = self.users[k]
+            data[(row, 6)] = k
             for i in dic:
                 col = 0
                 key = ()
-                if i == 'meal': key = (row, (col + 1))
-                if i == 'taxi': key = (row, (col + 2))
-                if i == 'oil': key = (row, (col + 3))
-                if i == 'other': key = (row, (col + 4))
+                if i == 'meal': key = (row, 1)
+                if i == 'taxi': key = (row, 2)
+                if i == 'oil': key = (row, 3)
+                if i == 'other': key = (row, 4)
                 if i != 'all': data[key] = str(round(dic[i]['money'], 2))
                 if i == 'all':
                     key = (row, col + 5)
@@ -137,12 +140,19 @@ class ClsStatPanel(wx.Panel):
         self.grid.PopupMenu(self.popupmenu, pos)
 
     def OnPopupPaySelected(self, event):
-        col_nums = self.grid.GetTable().GetNumberCols()
-        pay = Compute.zero()
-        for i in range(1, col_nums):
-            pay += Compute.parse(self.grid.GetTable().GetDataValue(self.select_grid_row, i))
-            pass
-        applyId = self.grid.GetTable().GetDataValue(self.select_grid_row, 1)
+        pay = Compute.parse(self.grid.GetTable().GetDataValue(self.select_grid_row, 5))
+        user_id = self.grid_data.get((self.select_grid_row, 6))
+        dlg = wx.MessageDialog(None, '此操作将清空此用户申请信息!', '提示', wx.YES_NO | wx.ICON_QUESTION)
+        if dlg.ShowModal() == wx.ID_YES:
+            fund_pay = FundPayRecord(money=pay, user_id=user_id, create_time=now_time_str())
+            fund_pay.save()
+            applies = FundApply.find(where='user_id=?', args=user_id)
+            if applies and len(applies)>0:
+                for apply in applies:
+                    apply['state'] = '已报销'
+                    apply.update()
+            self.refresh(self.user)
+        dlg.Destroy()
 
     def refresh(self, user):
         self.user = user

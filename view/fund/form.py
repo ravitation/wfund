@@ -14,6 +14,7 @@ class Form(wx.Dialog):
     def __init__(self, parent, ID, user=None, applyId=None, title='新增'):
         wx.Dialog.__init__(self, parent, ID, size=(420, 300))
         self.SetTitle(title)
+        self.Center()
         self.data = {}
         self.kinds = FundKind.all()
         self.allPersons = User.all()

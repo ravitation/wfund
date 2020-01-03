@@ -12,6 +12,13 @@ from view.fund.form import Form
 from model.common import Config
 from resources.images import ICON, SPLASH_PIC
 from utils.img_tran import EmbedImg
+from utils import util
+from config.constants import APPLY_SIGN
+
+from view.fund.detail import FundDetail
+from view.fund.per_stat import PerStatPanel
+from view.fund.cls_stat import ClsStatPanel
+from view.maintain import MaintainPanel
 
 
 class WFundFrame(wx.Frame):
@@ -64,6 +71,9 @@ class WFundFrame(wx.Frame):
 
     def initMenu(self):
         self.menu = Menu(self, self.menuData())
+        self.initApplySign()
+
+    def initApplySign(self):
         signs = Config.find(where='code=? and sign=\'Y\'', args='applySign')
         if signs:
             val = signs[0].value
@@ -71,7 +81,11 @@ class WFundFrame(wx.Frame):
                 id = self.menu.FindMenuItem('管理', '关')
                 apply_menu = self.menu.FindItemById(id)
                 if apply_menu.IsCheckable():
-                    # apply_menu.IsChecked()
+                    apply_menu.Check(True)
+            elif val == 'Y':
+                id = self.menu.FindMenuItem('管理', '开')
+                apply_menu = self.menu.FindItemById(id)
+                if apply_menu.IsCheckable():
                     apply_menu.Check(True)
 
     def createPanel(self):
@@ -81,19 +95,13 @@ class WFundFrame(wx.Frame):
         self.OnDetail(None)
 
     def OnApplyFund(self, event):
-        self.form = Form(self, -1, user=self.user)
-        if self.form.ShowModal() == wx.ID_OK:
-            self.flush()
-
-    def OnUnPay(self, event):
-        self.SetStatusText('当前页面：未报销', 1)
-        self.fund_detail_panel = None
-        self.changePanel('view.fund.detail', 'FundDetail', self.fund_detail_panel)
-
-    def OnHadPay(self, event):
-        self.SetStatusText('当前页面：已报销', 1)
-        self.had_pay_panel = None
-        self.changePanel('view.fund.detail', 'FundDetail', self.had_pay_panel)
+        sign = Config.get_value(APPLY_SIGN)
+        if sign:
+            self.form = Form(self, -1, user=self.user)
+            if self.form.ShowModal() == wx.ID_OK:
+                self.flush()
+        else:
+            wx.MessageBox('暂时不能申请！', '提示')
 
     def OnPerStat(self, event):
         self.SetStatusText('当前页面：个人统计', 1)
@@ -111,7 +119,7 @@ class WFundFrame(wx.Frame):
         self.changePanel('view.fund.detail', 'FundDetail', self.fund_detail_panel)
 
     def OnAddUser(self, event):
-        if not self.isRole('ADMIN'):
+        if not util.isAdmin(self.user):
             wx.MessageBox('权限需要提升！', 'Error')
             return
         reg = Register(self, -1)
@@ -119,7 +127,7 @@ class WFundFrame(wx.Frame):
             print('register success')
 
     def OnLogOther(self, event):
-        if not self.isRole('ADMIN'):
+        if not util.isAdmin(self.user):
             wx.MessageBox('权限需要提升！', 'Error')
             return
         log = Login(self, -1)
@@ -129,10 +137,11 @@ class WFundFrame(wx.Frame):
         self.flush()
 
     def OnApplySign(self, event):
-        if not self.isRole('ADMIN'):
+        if not util.isAdmin(self.user):
             wx.MessageBox('权限需要提升！', 'Error')
+            self.initApplySign()
         else:
-            signs = Config.find(where='code=? and sign=\'Y\'', args='applySign')
+            signs = Config.find(where='code=? and sign=\'Y\'', args=APPLY_SIGN)
             itemId = event.GetId()
             label = self.menu.FindItemById(itemId).GetLabel()
             if signs:
@@ -147,6 +156,9 @@ class WFundFrame(wx.Frame):
                     sign.update()
 
     def OnMaintain(self, event):
+        if not util.isAdmin(self.user):
+            wx.MessageBox('权限需要提升！', 'Error')
+            return
         self.SetStatusText('当前页面：维护', 1)
         self.maintain_panel = None
         self.changePanel('view.maintain', 'MaintainPanel', self.maintain_panel)
@@ -185,9 +197,6 @@ class WFundFrame(wx.Frame):
     def OnCloseWindow(self, event):
         self.timer.Stop()
         self.Destroy()
-
-    def isRole(self, auth):
-        return self.user.role == auth
 
     def flush(self):
         for panel in self.panel_list:
