@@ -95,6 +95,7 @@ class PerStatPanel(wx.Panel):
         db_data = {}
         data = {}
         index = 0
+        self.applies = sorted(self.applies, key=lambda key: key['date'], reverse=True)
         for item in self.applies:
             db_data[index] = (item.date, self.fund_kind[item.kind], round(item.money, 2), item.reason, item.persons,
                               item.id)

@@ -2,7 +2,7 @@
 # _*_ coding=utf-8 _*_
 import wx
 from model.fund import FundApply, FundPayRecord
-from model.common import User
+from model.common import User, Role
 from model.fund import FundProvide
 from utils.compute import Compute
 from view.component.part import Part
@@ -25,6 +25,7 @@ class MaintainPanel(wx.Panel):
         self.provide = FundProvide.find()
         self.pay = FundPayRecord.find()
         self.users = User.find()
+        self.roles = Role.all()
 
         provide = Compute.zero()
         for item in self.provide:
@@ -40,10 +41,39 @@ class MaintainPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnAddFund, add_btn)
         unuse_sizer = Part.GenStaticBoxSizer(self, '剩余（元）', [unuse, add_btn], wx.ALL, static_flags=wx.HORIZONTAL)
 
+        self.grid = self.init_grid()
+
         v_sizer = wx.BoxSizer(wx.VERTICAL)
         v_sizer.Add(unuse_sizer, 0, wx.ALL, 5)
+        v_sizer.Add(self.grid, 1, wx.ALL, 5)
         self.SetSizer(v_sizer)
         self.Layout()
+
+    def init_grid(self):
+        colLabels = ['用户名', '姓名', '电话', '邮箱', '角色']
+        self.grid_data = self.get_grid_data()
+        print(self.grid_data)
+        grid = Part.GenGrid(self, colLabels, {k: self.grid_data[k] for k in self.grid_data if k[1] != 5})
+        grid.SetColSize(0, 175)
+        grid.SetColSize(2, 200)
+        grid.SetColSize(3, 200)
+        grid.EnableEditing(False)
+        return grid
+
+    def get_grid_data(self):
+        db_data = {}
+        data = {}
+        index = 0
+        for item in self.users:
+            db_data[index] = (item.code, item.name, item.mobile, item.email, self.roles[item.role],
+                              item.id)
+            index += 1
+
+        for i in range(len(db_data)):
+            item = db_data[i]
+            for k in range(len(item)):
+                data[(i, k)] = item[k]
+        return data
 
     def OnAddFund(self, event):
         dlg = wx.TextEntryDialog(None, '输入金额：', '', '0.0',  style=wx.OK | wx.CANCEL)
