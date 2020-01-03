@@ -144,13 +144,14 @@ class ClsStatPanel(wx.Panel):
         user_id = self.grid_data.get((self.select_grid_row, 6))
         dlg = wx.MessageDialog(None, '此操作将清空此用户申请信息!', '提示', wx.YES_NO | wx.ICON_QUESTION)
         if dlg.ShowModal() == wx.ID_YES:
-            fund_pay = FundPayRecord(money=pay, user_id=user_id, create_time=now_time_str())
-            fund_pay.save()
-            applies = FundApply.find(where='user_id=?', args=user_id)
-            if applies and len(applies)>0:
-                for apply in applies:
-                    apply['state'] = '已报销'
-                    apply.update()
+            if round(pay, 2) > 0 and user_id:
+                fund_pay = FundPayRecord(money=pay, user_id=user_id, create_time=now_time_str())
+                fund_pay.save()
+                applies = FundApply.find(where='user_id=?', args=user_id)
+                if applies and len(applies) > 0:
+                    for apply in applies:
+                        apply['state'] = '已报销'
+                        apply.update()
             self.refresh(self.user)
         dlg.Destroy()
 

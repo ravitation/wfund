@@ -125,13 +125,14 @@ class PerStatPanel(wx.Panel):
     def OnPopupEditSelected(self, event):
         applyId = self.grid_data.get((self.select_grid_row, 5))
         self.form = Form(self, -1, user=self.user, applyId=applyId)
-        if self.form.ShowModal() == wx.ID_OK:
+        if applyId and self.form.ShowModal() == wx.ID_OK:
             self.refresh(self.user)
 
     def OnPopupDeleteSelected(self, event):
         applyId = self.grid_data.get((self.select_grid_row, 5))
-        FundApply.delete_by_key(applyId)
-        self.refresh(self.user)
+        if applyId:
+            FundApply.delete_by_key(applyId)
+            self.refresh(self.user)
 
     def refresh(self, user):
         self.user = user
