@@ -10,7 +10,7 @@ from view.fund.form import Form
 
 
 class PerStatPanel(wx.Panel):
-    def __init__(self, parent, ID, user=None):
+    def __init__(self, parent, ID, user=None, state=False):
         wx.Panel.__init__(self, parent, ID)
 
         self.title_font = wx.Font(20, wx.SWISS, wx.NORMAL, wx.BOLD)
@@ -18,6 +18,7 @@ class PerStatPanel(wx.Panel):
 
         self.SetBackgroundColour('White')
         self.user = user
+        self.state = state
         self.init()
 
     def init(self):
@@ -25,7 +26,8 @@ class PerStatPanel(wx.Panel):
         self.createPopupMenu()
 
     def show(self):
-        self.applies = FundApply.find(where="user_id=? and state='未报销'", args=self.user.id)
+        st = '已报销' if self.state else '未报销'
+        self.applies = FundApply.find(where="user_id=? and state='"+st+"'", args=self.user.id)
         self.fund_kind = FundKind.all()
 
         self.money_dict = self.all_money(self.applies)

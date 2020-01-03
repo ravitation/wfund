@@ -54,7 +54,11 @@ class WFundFrame(wx.Frame):
             ("关闭\tCtrl+Q", "", self.OnCloseWindow, 'Q')),
             ),("查看", (
                 ("经费详情\tCtrl+D", "", self.OnDetail, 'D'),
-                ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
+                # ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
+                ("个人统计", (
+                    ("未报销\tCtrl+P", "", self.OnPerUnPay, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                    ("已报销\tCtrl+H", "", self.OnPerHadPay, 'H', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                )),
                 ("组内统计\tCtrl+G", "", self.OnClsStat, 'G'),
             )), ('管理', (
                 ("添加用户\tCtrl+Alt+A", "", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
@@ -103,10 +107,15 @@ class WFundFrame(wx.Frame):
         else:
             wx.MessageBox('暂时不能申请！', '提示')
 
-    def OnPerStat(self, event):
-        self.SetStatusText('当前页面：个人统计', 1)
+    def OnPerUnPay(self, event):
+        self.SetStatusText('当前页面：个人统计：未报销', 1)
         self.per_stat_panel = None
-        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel)
+        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel, state=False)
+
+    def OnPerHadPay(self, event):
+        self.SetStatusText('当前页面：个人统计：已报销', 1)
+        self.per_stat_panel = None
+        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel, state=True)
 
     def OnClsStat(self, event):
         self.SetStatusText('当前页面：组内统计', 1)
@@ -182,13 +191,13 @@ class WFundFrame(wx.Frame):
         st = time.strftime('%Y年%m月%d日 %H时%M分%S秒', t)
         self.SetStatusText('当前时间：' + st, 2)
 
-    def changePanel(self, module, panel_class, panel=None):
+    def changePanel(self, module, panel_class, panel=None, **kw):
         for item in self.panel_list:
             self.hbox.Hide(item)
         if panel not in self.panel_list:
             model = importlib.import_module(module)
             obj_class_name = getattr(model, panel_class)
-            panel = obj_class_name(self, -1, self.user)
+            panel = obj_class_name(self, -1, self.user, **kw)
             self.panel_list.append(panel)
             self.hbox.Add(panel, 1, wx.EXPAND)
         self.hbox.Show(panel)

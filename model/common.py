@@ -62,7 +62,6 @@ class Config(Model):
                 return config.value
 
 
-
 def init():
     from utils.util import md5_encode, now_time_str
     roles = [{'code': 'ADMIN', 'name': '管理员'},
@@ -70,6 +69,8 @@ def init():
 
     users = [{'code': 'caopeihe', 'password': md5_encode('caopeihe'), 'create_time': now_time_str(),
               'update_time': now_time_str(), 'role': 'ADMIN'}]
+
+    configs = [{'code': 'applySign', 'value':'Y', 'dsc': '是否可以申请， Y：可以，N：不可以', 'sign': 'Y'}]
 
     User.drop()
     User.create()
@@ -85,6 +86,10 @@ def init():
     for item in users:
         u = User(**item)
         u.save()
+
+    for item in configs:
+        c = Config(**item)
+        c.save()
 
 
 if __name__ == '__main__':
