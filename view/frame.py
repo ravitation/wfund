@@ -6,6 +6,7 @@ import time
 import importlib
 from utils.menu import Menu
 from view.fund.about import WFundAbout
+from view.fund.explain import WFundExplain
 from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
@@ -70,7 +71,7 @@ class WFundFrame(wx.Frame):
                 ("维护\tCtrl+Alt+W", "", self.OnMaintain, 'W', wx.ACCEL_CTRL | wx.ACCEL_ALT)
             )), ("帮助", (
                 ("&关于\tCtrl+Shift+A", "", self.OnAbout, 'A', wx.ACCEL_CTRL | wx.ACCEL_SHIFT),
-                ("&说明\tCtrl+E", "", self.OnAbout, 'E')
+                ("&说明\tCtrl+E", "", self.OnExplain, 'E', wx.ACCEL_CTRL)
             ))]
 
     def initMenu(self):
@@ -183,6 +184,11 @@ class WFundFrame(wx.Frame):
 
     def OnAbout(self, event):
         dlg = WFundAbout(self)
+        dlg.ShowModal()
+        dlg.Destroy()
+
+    def OnExplain(self, event):
+        dlg = WFundExplain(self)
         dlg.ShowModal()
         dlg.Destroy()
 

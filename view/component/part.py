@@ -55,3 +55,7 @@ class Part:
         if key_code:
             acceltbl = wx.AcceleratorTable([(flags, ord(key_code), menuItem.GetId())])
             parent.SetAcceleratorTable(acceltbl)
+
+    @classmethod
+    def createHorBtn(cls):
+        pass

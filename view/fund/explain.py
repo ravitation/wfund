@@ -5,7 +5,7 @@ import wx.html
 from view.component.html import HtmlShow
 
 
-class WFundAbout(wx.Dialog):
+class WFundExplain(wx.Dialog):
     text = '''
         <html>
         <body bgcolor="#ACAA60">
@@ -19,6 +19,7 @@ class WFundAbout(wx.Dialog):
         </center>
         <p>
             <b>WFund</b>是用于开发五组内部经费记录的工具，以方便组内经费统计<br/>报销。</p>
+            <a href='http://www.baidu.com' name='baidu' target='_blank'>Baidu.com</a>
         <p>
             <center>
                 Copyright &copy; 2020.
