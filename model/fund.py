@@ -31,6 +31,7 @@ class FundProvide(Model):
     id = IntField(primary_key=True)
     money = DecimalField()
     create_time = StrField(column_type='varchar(25)')
+    user_id = IntField()
 
 
 class FundKind(Model):

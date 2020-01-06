@@ -79,7 +79,7 @@ class MaintainPanel(wx.Panel):
         return data
 
     def menuData(self):
-        return [("修改", "", self.OnPopupEditUser, '')]
+        return [("修改", "", self.OnPopupEditUser, ''), ("删除", "", self.OnPopupDelUser, '')]
 
     def createPopupMenu(self):
         self.popupmenu = wx.Menu()
@@ -97,10 +97,16 @@ class MaintainPanel(wx.Panel):
         if self.form.ShowModal() == wx.ID_OK:
             self.refresh(self.user)
 
+    def OnPopupDelUser(self, event):
+        user_id = self.grid_data.get((self.select_grid_row, 5))
+        if user_id:
+            User.delete_by_key(user_id)
+            self.refresh(self.user)
+
     def OnAddFund(self, event):
         dlg = wx.TextEntryDialog(None, '输入金额：', '', '0.0',  style=wx.OK | wx.CANCEL)
         if dlg.ShowModal() == wx.ID_OK:
-            provide = FundProvide(money=dlg.GetValue(), create_time=now_time_str())
+            provide = FundProvide(money=dlg.GetValue(), create_time=now_time_str(), user_id=self.user.id)
             provide.save()
             self.refresh(self.user)
         pass
