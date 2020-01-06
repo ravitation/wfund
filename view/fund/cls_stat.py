@@ -87,6 +87,8 @@ class ClsStatPanel(wx.Panel):
         self.grid_data = self.get_grid_data()
         grid = Part.GenGrid(self, colLabels, self.get_grid_data())
         grid.EnableEditing(False)
+        # grid.SetDefaultCellOverflow(False)
+
         grid.SetColSize(0, 110)
         grid.SetColSize(1, 125)
         grid.SetColSize(2, 125)

@@ -22,7 +22,7 @@ cont = '''
         </ol>
     </div>
     <div style='float:right;width:500px;'>
-        <p id="name">
+        <p id="first">
             <b>WFund</b>是用于开发五组内部经费记录的工具，以方便组内经费统计<br/>报销。</p>
         <p>
     </div>

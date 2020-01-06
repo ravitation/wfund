@@ -3,6 +3,7 @@
 import wx
 import wx.grid
 from view.component.table import GenericTable
+from utils.gridtable import GridTable
 
 
 class Part:
@@ -25,12 +26,12 @@ class Part:
 
     @classmethod
     def GenGrid(cls, parent, colLabels, data):
-        grid = wx.grid.Grid(parent)
         table = GenericTable(data=data, colLabels=colLabels)
-        grid.SetTable(table, True)
+        grid = GridTable(parent, table)
         grid.SetColSize(0, 180)
-        grid.SetDefaultRowSize(26)
-        grid.SetRowLabelSize(36)
+        # grid.SetTable(table, True)
+        # grid.SetDefaultRowSize(26)
+        # grid.SetRowLabelSize(36)
         return grid
 
     @classmethod

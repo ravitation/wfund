@@ -23,7 +23,7 @@ class GenericTable(wx.grid.GridTableBase):
         self.colLabels = colLabels
 
         self.odd = wx.grid.GridCellAttr()
-        self.odd.SetBackgroundColour('sky blue')
+        self.odd.SetBackgroundColour('light blue')
         self.odd.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.BOLD))
 
         self.even = wx.grid.GridCellAttr()

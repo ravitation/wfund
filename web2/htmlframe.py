@@ -13,6 +13,6 @@ class HtmlFrame(wx.Frame):
         # web_view = HtmlWindow.New(self)
         # web_view.LoadURL("https://baidu.com/")
         dlg = HtmlDialog(self)
-        # dlg.browser.LoadURL("http://www.baidu.com/?tn=62095104_10_oem_dg")
+        # dlg.browser.LoadURL("http://127.0.0.1:8848/web/explain/index.html")
         dlg.browser.SetPage(cont, "")
         dlg.Show()

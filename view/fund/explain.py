@@ -13,17 +13,12 @@ class WFundExplain(wx.Dialog):
             <table bgcolor="#455481" width="100%" cellspacing="0"
                 cellpadding="0" border="1">
                 <tr>
-                    <td align="center"><h1>WFund</h1></td>
+                    <td align="center"><h1>WFund 使用说明</h1></td>
                 </tr>
             </table>
         </center>
         <p>
-            <b>WFund</b>是用于开发五组内部经费记录的工具，以方便组内经费统计<br/>报销。</p>
-            <a href='http://www.baidu.com' name='baidu' target='_blank'>Baidu.com</a>
-        <p>
-            <center>
-                Copyright &copy; 2020.
-            </center>
+            暂无
         </p>
         </body>
         </html>

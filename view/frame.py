@@ -11,7 +11,7 @@ from view.component.login import Login
 from view.component.register import Register
 from view.fund.form import Form
 from model.common import Config
-from resources.images import ICON, SPLASH_PIC
+from resources.images import ICON, SPLASH_PIC, ADD, ALL_INFO
 from utils.img_tran import EmbedImg
 from utils import util
 from config.constants import APPLY_SIGN
@@ -38,6 +38,7 @@ class WFundFrame(wx.Frame):
         self.login()
         self.splash()
         self.initMenu()
+        self.initToolBar()
         self.createPanel()
 
     def initStatusBar(self):
@@ -77,6 +78,17 @@ class WFundFrame(wx.Frame):
     def initMenu(self):
         self.menu = Menu(self, self.menuData())
         self.initApplySign()
+
+    def initToolBar(self):
+        toolbar = self.CreateToolBar()
+        bmp_add = EmbedImg(ADD).GetBitmap()
+        add_tool = toolbar.AddTool(-1, "新增申请", bmp_add, "新增申请")
+        bmp_all = EmbedImg(ALL_INFO).GetBitmap()
+        self.Bind(wx.EVT_TOOL, self.OnApplyFund, add_tool)
+        all_tool = toolbar.AddTool(-1, "组内统计", bmp_all, "组内经费情况统计")
+        self.Bind(wx.EVT_TOOL, self.OnClsStat, all_tool)
+        toolbar.Realize()
+        pass
 
     def initApplySign(self):
         signs = Config.find(where='code=? and sign=\'Y\'', args='applySign')
