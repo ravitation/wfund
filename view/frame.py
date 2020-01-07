@@ -51,28 +51,28 @@ class WFundFrame(wx.Frame):
 
     def menuData(self):
         return [("操作", (
-            ("新增申请\tCtrl+N", "", self.OnApplyFund, 'N'),
+            ("新增申请\tCtrl+N", "新增申请", self.OnApplyFund, 'N'),
             ("", "", "", ''),
-            ("关闭\tCtrl+Q", "", self.OnCloseWindow, 'Q')),
+            ("关闭\tCtrl+Q", "关闭", self.OnCloseWindow, 'Q')),
             ),("查看", (
-                ("经费详情\tCtrl+D", "", self.OnDetail, 'D'),
+                ("经费详情\tCtrl+D", "经费详情", self.OnDetail, 'D'),
                 # ("个人统计\tCtrl+P", "", self.OnPerStat, 'P'),
                 ("个人统计", (
-                    ("未报销\tCtrl+P", "", self.OnPerUnPay, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT),
-                    ("已报销\tCtrl+H", "", self.OnPerHadPay, 'H', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                    ("未报销\tCtrl+P", "个人统计-未报销", self.OnPerUnPay, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                    ("已报销\tCtrl+H", "个人统计-已报销", self.OnPerHadPay, 'H', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 )),
-                ("组内统计\tCtrl+G", "", self.OnClsStat, 'G'),
+                ("组内统计\tCtrl+G", "组内统计", self.OnClsStat, 'G'),
             )), ('管理', (
-                ("添加用户\tCtrl+Alt+A", "", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
-                ("登录其他用户\tCtrl+Alt+U", "", self.OnLogOther, 'U', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                ("添加用户\tCtrl+Alt+A", "添加用户", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
+                ("登录其他用户\tCtrl+Alt+U", "登录其他用户", self.OnLogOther, 'U', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 ("申请开关", (
-                    ("开\tCtrl+Alt+O", "", self.OnApplySign, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
-                    ("关\tCtrl+Alt+C", "", self.OnApplySign, 'C', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
+                    ("开\tCtrl+Alt+O", "申请开关-开", self.OnApplySign, 'O', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
+                    ("关\tCtrl+Alt+C", "申请开关-关", self.OnApplySign, 'C', wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.ITEM_RADIO),
                 )),
-                ("维护\tCtrl+Alt+W", "", self.OnMaintain, 'W', wx.ACCEL_CTRL | wx.ACCEL_ALT)
+                ("维护\tCtrl+Alt+W", "维护", self.OnMaintain, 'W', wx.ACCEL_CTRL | wx.ACCEL_ALT)
             )), ("帮助", (
-                ("&关于\tCtrl+Shift+A", "", self.OnAbout, 'A', wx.ACCEL_CTRL | wx.ACCEL_SHIFT),
-                ("&说明\tCtrl+E", "", self.OnExplain, 'E', wx.ACCEL_CTRL)
+                ("关于\tCtrl+Shift+A", "关于", self.OnAbout, 'A', wx.ACCEL_CTRL | wx.ACCEL_SHIFT),
+                ("说明\tCtrl+E", "说明", self.OnExplain, 'E', wx.ACCEL_CTRL)
             ))]
 
     def initMenu(self):
@@ -121,12 +121,12 @@ class WFundFrame(wx.Frame):
             wx.MessageBox('暂时不能申请！', '提示')
 
     def OnPerUnPay(self, event):
-        self.SetStatusText('当前页面：个人统计：未报销', 1)
+        self.SetStatusText('当前页面：个人统计-未报销', 1)
         self.per_stat_panel = None
         self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel, state=False)
 
     def OnPerHadPay(self, event):
-        self.SetStatusText('当前页面：个人统计：已报销', 1)
+        self.SetStatusText('当前页面：个人统计-已报销', 1)
         self.per_stat_panel = None
         self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel, state=True)
 
