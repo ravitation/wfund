@@ -66,8 +66,9 @@ class FundDetail(wx.Panel):
         data = {}
         index = 0
         for item in self.provide:
-            db_data[index] = (item.create_time, '增加', round(item.money, 2), self.all_user[item.user_id])
-            index += 1
+            if item.user_id in self.all_user.keys():
+                db_data[index] = (item.create_time, '增加', round(item.money, 2), self.all_user[item.user_id])
+                index += 1
 
         for item in self.pay:
             if item.user_id in self.all_user.keys():
