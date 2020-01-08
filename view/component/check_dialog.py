@@ -5,8 +5,8 @@ import math
 
 
 class CheckBox(wx.Dialog):
-    def __init__(self, parent, ID, title='选择窗口', checks=None, defaults=None, columns=3):
-        wx.Dialog.__init__(self, parent, ID, size=(360, 220))
+    def __init__(self, parent, ID, title='选择窗口', checks=None, defaults=None, columns=5):
+        wx.Dialog.__init__(self, parent, ID, size=(450, 260))
         button = wx.Button(self, wx.ID_OK, "确认")
         self.SetTitle(title)
         self.columns = columns

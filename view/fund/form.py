@@ -51,6 +51,7 @@ class Form(wx.Dialog):
         dateSizer.Add(self.date, wx.EXPAND | wx.ALL, 5)
 
         self.money.Bind(wx.EVT_KILL_FOCUS, self.OnNameEnter)
+        self.Bind(wx.adv.EVT_DATE_CHANGED, self.OnDateChange, self.date)
 
         self.expLbl = wx.StaticText(self, -1, '描述：', size=(60, -1), style=wx.ALIGN_RIGHT)
         self.reason = wx.TextCtrl(self, -1, name='reason', size=(200, 80), style=wx.TE_MULTILINE,
@@ -68,7 +69,7 @@ class Form(wx.Dialog):
 
         peopleSizer = wx.BoxSizer(wx.HORIZONTAL)
         peopleSizer.Add(self.peopleLbl, wx.ALL, 5)
-        peopleSizer.Add(self.persons, wx.ALL|wx.EXPAND, 5)
+        peopleSizer.Add(self.persons, wx.ALL | wx.EXPAND, 5)
         peopleSizer.Add(self.peopleBtn, wx.ALL, 5)
 
         okBtn = wx.Button(self, wx.ID_OK, "保存")
@@ -126,19 +127,25 @@ class Form(wx.Dialog):
         self.data[eo.GetName()] = eo.GetValue()
         event.Skip()
 
+    def OnDateChange(self, event):
+        dt = self.date.GetValue()
+        df = dt.Format('%Y年%m月%d日')
+        self.data['date'] = df
+
     def OnChoiceKind(self, event):
         eo = event.GetEventObject()
         self.data['kind'] = [k for k in self.kinds.keys()][eo.GetSelection()]
 
     def OnSave(self, event):
-        if self.update:
-            apply = FundApply(**self.data)
-            apply.update()
-            wx.MessageBox('修改成功！', 'Error')
-        else:
-            apply = FundApply(user_id=self.user.id, state='未报销', create_time=now_time_str(), update_time=now_time_str(),
-                              **self.data)
-            apply.save()
-            wx.MessageBox('保存成功！', 'Error')
-        self.EndModal(wx.ID_OK)
+        if self.Validate():
+            if self.update:
+                apply = FundApply(**self.data)
+                apply.update()
+                wx.MessageBox('修改成功！', 'Error')
+            else:
+                apply = FundApply(user_id=self.user.id, state='未报销', create_time=now_time_str(), update_time=now_time_str(),
+                                  **self.data)
+                apply.save()
+                wx.MessageBox('保存成功！', 'Error')
+            self.EndModal(wx.ID_OK)
 

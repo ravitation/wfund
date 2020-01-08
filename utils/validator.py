@@ -15,7 +15,7 @@ class NotEmptyValidator(wx.Validator):
         text = textCtrl.GetValue()
 
         if len(text) == 0:
-            wx.MessageBox('the field must contain some text', 'Error')
+            wx.MessageBox('请填写必要信息！', '错误')
             textCtrl.SetBackgroundColour('Pink')
             textCtrl.SetFocus()
             textCtrl.Refresh()
