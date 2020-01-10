@@ -3,6 +3,7 @@
 import wx
 import time
 import hashlib
+import random
 
 
 def MakeBitmap(color):
@@ -55,6 +56,18 @@ def max_times(ite):
     for i in ite:
         dic[i] = dic.get(i, 0) + 1
     return max(list(dic.values()))
+
+
+def gen_random(length=2):
+    """
+    获取随机数
+    :param length: 随机数长度
+    :return: 随机数
+    """
+    o = ''
+    for it in range(length):
+        o += str(random.randint(0, 9))
+    return o
 
 
 def isAdmin(user):

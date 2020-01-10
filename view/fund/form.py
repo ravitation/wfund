@@ -99,7 +99,10 @@ class Form(wx.Dialog):
             keys = list(FundKind.all().keys())
             self.kind.SetSelection(keys.index(self.apply.kind))
 
-            dt = wx.DateTime(datetime.datetime.strptime(self.apply.date, '%Y年%m月%d日'))
+            try:
+                dt = wx.DateTime(datetime.datetime.strptime(self.apply.date, '%Y年%m月%d日'))
+            except ValueError:
+                dt = wx.DateTime(datetime.datetime.strptime(self.apply.date, '%Y-%m-%d'))
             self.date.SetValue(dt)
 
             self.money.SetValue(str(round(self.apply.money, 2)))

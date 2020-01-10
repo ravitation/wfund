@@ -4912,14 +4912,34 @@ class WordDict(Enum):
     zuo_5 = [('zuo', '咗')]
 
     @classmethod
-    def random_word(cls, pre=None):
-        val = random.sample([x.value for x in WordDict.__iter__()], 1)[0]
-        if val:
-            if pre:
-                val = val[0: len(val) if len(val) <= pre else pre]
-            return random.sample(val, 1)[0][1]
-        else:
-            return cls.random_word()
+    def random_py(cls):
+        json = cls.to_py_json()
+        py = random.sample(list(json), 1)
+        return {py[0]: json[py[0]]}
+
+    @classmethod
+    def random_word(cls):
+        json = cls.to_word_json()
+        py = random.sample(list(json), 1)
+        return {py[0]: json[py[0]]}
+
+    @classmethod
+    def to_py_json(cls):
+        lis = [k.value for k in WordDict.__members__.values()]
+        json = {}
+        for i, vl in enumerate(lis):
+            for j, v in enumerate(vl):
+                json[v[0]] = (json[v[0]] if v[0] in json.keys() else []) + [v[1]]
+        return json
+
+    @classmethod
+    def to_word_json(cls):
+        lis = [k.value for k in WordDict.__members__.values()]
+        json = {}
+        for i, vl in enumerate(lis):
+            for j, v in enumerate(vl):
+                json[v[1]] = (json[v[1]] if v[1] in json.keys() else []) + [v[0]]
+        return json
 
 
 if __name__ == '__main__':

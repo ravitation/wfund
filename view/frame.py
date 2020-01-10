@@ -20,6 +20,7 @@ from view.fund.detail import FundDetail
 from view.fund.per_stat import PerStatPanel
 from view.fund.cls_stat import ClsStatPanel
 from view.maintain import MaintainPanel
+from view.component.user import UserInfo
 
 
 class WFundFrame(wx.Frame):
@@ -62,6 +63,7 @@ class WFundFrame(wx.Frame):
                     ("已报销\tCtrl+H", "个人统计-已报销", self.OnPerHadPay, 'H', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 )),
                 ("组内统计\tCtrl+G", "组内统计", self.OnClsStat, 'G'),
+                ("个人信息\tCtrl+Alt+P", "个人信息", self.OnUserInfo, 'P'),
             )), ('管理', (
                 ("添加用户\tCtrl+Alt+A", "添加用户", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 ("登录其他用户\tCtrl+Alt+U", "登录其他用户", self.OnLogOther, 'U', wx.ACCEL_CTRL | wx.ACCEL_ALT),
@@ -122,18 +124,23 @@ class WFundFrame(wx.Frame):
 
     def OnPerUnPay(self, event):
         self.SetStatusText('当前页面：个人统计-未报销', 1)
-        self.per_stat_panel = None
-        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel, state=False)
+        self.up_pay = None
+        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.up_pay, state=False)
 
     def OnPerHadPay(self, event):
         self.SetStatusText('当前页面：个人统计-已报销', 1)
-        self.per_stat_panel = None
-        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.per_stat_panel, state=True)
+        self.had_pay = None
+        self.changePanel('view.fund.per_stat', 'PerStatPanel', self.had_pay, state=True)
 
     def OnClsStat(self, event):
         self.SetStatusText('当前页面：组内统计', 1)
         self.per_cls_panel = None
         self.changePanel('view.fund.cls_stat', 'ClsStatPanel', self.per_cls_panel)
+
+    def OnUserInfo(self, event):
+        self.SetStatusText('当前页面：个人信息', 1)
+        self.user_info = None
+        self.changePanel('view.component.user', 'UserInfo', self.user_info)
 
     def OnDetail(self, event):
         self.SetStatusText('当前页面：详情', 1)

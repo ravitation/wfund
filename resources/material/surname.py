@@ -495,7 +495,7 @@ class Surname(Enum):
     FU5 = '福'
 
     @classmethod
-    def random_surname(cls):
+    def random(cls):
         val = random.sample([x.value for x in Surname.__iter__()], 1)[0]
         return val
 

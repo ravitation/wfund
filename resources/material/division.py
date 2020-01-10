@@ -3228,3 +3228,21 @@ class Division(Enum):
     @classmethod
     def contains_key(cls, key):
         return key in cls._member_names_
+
+    @classmethod
+    def all_name(cls, div):
+        keys = []
+        for i in reversed(range(0, 3)):
+            keys.append(str(div)[:(6 - 2*i)] + ''.join(['0' for i in range(2*i)]))
+        json = cls.to_json()
+        return ''.join([json[k] for k in keys if k in json.keys()])
+
+    @classmethod
+    def to_json(cls):
+        return {m: n for m, n in [k.value for k in cls.__members__.values()]}
+
+
+if __name__ == '__main__':
+    a = Division.all_name(659006)
+    print(a)
+    pass
