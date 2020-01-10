@@ -101,8 +101,8 @@ class Register(wx.Dialog):
             if self.user.avatar:
                 img = EmbedImg(self.user.avatar).GetImage()
                 img.Rescale(60, 60)
-                self.pic64 = wx.Bitmap(img)
-                self.pic.SetBitmap(self.pic64)
+                self.pic64 = self.user.avatar
+                self.pic.SetBitmap(wx.Bitmap(img))
                 self.Layout()
         else:
             if self.admin:
