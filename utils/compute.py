@@ -17,6 +17,10 @@ class Compute:
         return round(dec, 2)
 
     @classmethod
+    def format(cls, dec):
+        return str(round(dec, 2))
+
+    @classmethod
     def parse(cls, str):
         if str:
             return decimal.Decimal(str)

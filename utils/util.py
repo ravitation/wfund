@@ -4,6 +4,7 @@ import wx
 import time
 import hashlib
 import random
+import platform
 
 
 def MakeBitmap(color):
@@ -72,6 +73,20 @@ def gen_random(length=2):
 
 def isAdmin(user):
     return user.role == 'ADMIN'
+
+
+def get_desktop_path():
+    """
+    桌面路径
+    :return:路径
+    """
+    if platform.system() == 'Windows':
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+        return winreg.QueryValueEx(key, "Desktop")[0] + '\\'
+    elif platform.system() == 'Linux':
+        return '/home/'
 
 
 if __name__ == '__main__':

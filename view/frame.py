@@ -3,12 +3,14 @@
 import wx
 from wx import adv
 import time
+import locale
 import importlib
 from utils.menu import Menu
 from view.fund.about import WFundAbout
 from view.fund.explain import WFundExplain
 from view.component.login import Login
 from view.component.register import Register
+from view.fund.sheet import GenSheet
 from view.fund.form import Form
 from model.common import Config
 from resources.images import ICON, SPLASH_PIC, ADD, ALL_INFO
@@ -64,6 +66,7 @@ class WFundFrame(wx.Frame):
                 )),
                 ("组内统计\tCtrl+G", "组内统计", self.OnClsStat, 'G'),
                 ("个人信息\tCtrl+Alt+P", "个人信息", self.OnUserInfo, 'P'),
+                ("生成表单\tCtrl+Alt+G", "生成表单", self.OnGenSheet, 'P'),
             )), ('管理', (
                 ("添加用户\tCtrl+Alt+A", "添加用户", self.OnAddUser, 'A', wx.ACCEL_CTRL | wx.ACCEL_ALT),
                 ("登录其他用户\tCtrl+Alt+U", "登录其他用户", self.OnLogOther, 'U', wx.ACCEL_CTRL | wx.ACCEL_ALT),
@@ -147,6 +150,11 @@ class WFundFrame(wx.Frame):
         self.fund_detail_panel = None
         self.changePanel('view.fund.detail', 'FundDetail', self.fund_detail_panel)
 
+    def OnGenSheet(self, event):
+        reg = GenSheet(self, -1, self.user)
+        if reg.ShowModal() == wx.ID_OK:
+            print('success')
+
     def OnAddUser(self, event):
         if not util.isAdmin(self.user):
             wx.MessageBox('权限需要提升！', 'Error')
@@ -212,6 +220,8 @@ class WFundFrame(wx.Frame):
         dlg.Destroy()
 
     def Notify(self):
+        locale.setlocale(locale.LC_ALL, 'en')
+        locale.setlocale(locale.LC_CTYPE, 'chinese')
         t = time.localtime()
         st = time.strftime('%Y年%m月%d日 %H时%M分%S秒', t)
         self.SetStatusText('当前时间：' + st, 2)

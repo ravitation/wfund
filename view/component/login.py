@@ -50,7 +50,6 @@ class Login(wx.Dialog):
             user = users[0]
             if user and md5_check(sys_name, user.password):
                 self.log_user = user
-                # self.EndModal(wx.ID_OK)
             else:
                 wx.MessageBox('初始化密码错误，登录失败！', 'Error')
         else:
