@@ -5,8 +5,8 @@ import xlwt
 import math
 import datetime
 from wx import adv
-from model.common import User, Role
-from model.fund import FundApply, FundPayRecord, FundKind
+from model.common import User
+from model.fund import FundApply, FundKind
 from utils.util import get_desktop_path, isAdmin
 from utils.compute import Compute
 from view.component.part import Part
@@ -82,14 +82,17 @@ class GenSheet(wx.Dialog):
         flexSizer.Add(all_btn, 0, wx.ALL, 5)
         static_sizer = Part.GenStaticBoxSizer(self, '人员', [flexSizer], static_flags=wx.HORIZONTAL)
         self.sizer.Add(static_sizer, 0, wx.ALL | wx.EXPAND, 5)
+        self.gen_btn()
 
+    def gen_btn(self):
         btn = wx.Button(self, -1, '生成')
         self.Bind(wx.EVT_BUTTON, self.OnGenSheet, btn)
         self.sizer.Add(btn, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-        pass
 
     def user_sheet(self):
         print("user")
+        self.gen_btn()
+        self.apply_ids = [str(self.user.id)]
         pass
 
     def OnCheckState(self, event):
@@ -132,7 +135,11 @@ class GenSheet(wx.Dialog):
 
     def OnGenSheet(self, event):
         sheet_data = self.get_sheet_data()
-        path = get_desktop_path() + '经费申请_' + self.user.name + '.xls'
+
+        path = get_desktop_path() + '经费申请_'
+        if len(self.user_map) != len(self.apply_ids):
+            path += ' '.join([self.user_map[int(k)] for k in self.apply_ids])
+        path += '_' + ' '.join(self.states) + '.xls'
         file = xlwt.Workbook()
         table = file.add_sheet('经费申请',
                                cell_overwrite_ok=True)
@@ -146,8 +153,8 @@ class GenSheet(wx.Dialog):
             for col in range(len(item)):
                 table.write(row, col, item[col])
             row = row + 1
-
         file.save(path)
+        wx.MessageBox('生成文件保存成功，文件路径：' + path)
         pass
 
     def get_sheet_data(self):

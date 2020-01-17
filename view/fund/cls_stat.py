@@ -6,7 +6,9 @@ from model.fund import FundApply, FundKind, FundPayRecord
 from model.common import User
 from utils.compute import Compute
 from utils.util import now_time_str
+from utils.email import Email
 from view.component.part import Part
+from config.config import mail_template
 
 
 class ClsStatPanel(wx.Panel):
@@ -149,13 +151,29 @@ class ClsStatPanel(wx.Panel):
             if round(pay, 2) > 0 and user_id:
                 fund_pay = FundPayRecord(money=pay, user_id=user_id, create_time=now_time_str())
                 fund_pay.save()
+                self.send_email(user_id)
                 applies = FundApply.find(where='user_id=?', args=user_id)
                 if applies and len(applies) > 0:
                     for apply in applies:
                         apply['state'] = '已报销'
                         apply.update()
             self.refresh(self.user)
+        event.Skip()
         dlg.Destroy()
+
+    def send_email(self, user_id):
+        users = User.find(where='id=?', args=user_id)
+        paies = (self.grid_data.get((self.select_grid_row, 1)) or 0,
+                 self.grid_data.get((self.select_grid_row, 2)) or 0,
+                 self.grid_data.get((self.select_grid_row, 3)) or 0,
+                 self.grid_data.get((self.select_grid_row, 4)) or 0,
+                 self.grid_data.get((self.select_grid_row, 5)))
+        if len(users) > 0:
+            user = users[0]
+            sender = (user.name, user.email)
+            cont = mail_template % (sender[0], paies[4], paies[0], paies[1], paies[2], paies[3])
+            Email(cont, None, None, sender[1], subject='经费报销', sender_text='', to_text=sender[0]).send()
+        pass
 
     def refresh(self, user):
         self.user = user

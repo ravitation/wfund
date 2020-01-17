@@ -3,10 +3,12 @@
 import wx
 import wx.grid
 from model.fund import FundApply
+from model.common import Config
 from utils.compute import Compute
 from model.fund import FundKind
 from view.component.part import Part
 from view.fund.form import Form
+from config.constants import APPLY_SIGN
 
 
 class PerStatPanel(wx.Panel):
@@ -15,6 +17,8 @@ class PerStatPanel(wx.Panel):
 
         self.title_font = wx.Font(20, wx.SWISS, wx.NORMAL, wx.BOLD)
         self.default_font = wx.Font(16, wx.SWISS, wx.NORMAL, wx.BOLD)
+
+        self.apply_sign = Config.get_value(APPLY_SIGN)
 
         self.SetBackgroundColour('White')
         self.user = user
@@ -125,16 +129,22 @@ class PerStatPanel(wx.Panel):
         self.grid.PopupMenu(self.popupmenu, pos)
 
     def OnPopupEditSelected(self, event):
-        applyId = self.grid_data.get((self.select_grid_row, 5))
-        self.form = Form(self, -1, user=self.user, applyId=applyId)
-        if applyId and self.form.ShowModal() == wx.ID_OK:
-            self.refresh(self.user)
+        if not self.apply_sign:
+            wx.MessageBox('暂时不能申请！', '提示')
+        else:
+            applyId = self.grid_data.get((self.select_grid_row, 5))
+            self.form = Form(self, -1, user=self.user, applyId=applyId)
+            if applyId and self.form.ShowModal() == wx.ID_OK:
+                self.refresh(self.user)
 
     def OnPopupDeleteSelected(self, event):
-        applyId = self.grid_data.get((self.select_grid_row, 5))
-        if applyId:
-            FundApply.delete_by_key(applyId)
-            self.refresh(self.user)
+        if not self.apply_sign:
+            wx.MessageBox('暂时不能申请！', '提示')
+        else:
+            applyId = self.grid_data.get((self.select_grid_row, 5))
+            if applyId:
+                FundApply.delete_by_key(applyId)
+                self.refresh(self.user)
 
     def refresh(self, user):
         self.user = user
