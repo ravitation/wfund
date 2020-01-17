@@ -172,8 +172,7 @@ class ClsStatPanel(wx.Panel):
             user = users[0]
             sender = (user.name, user.email)
             cont = mail_template % (sender[0], paies[4], paies[0], paies[1], paies[2], paies[3])
-            Email(cont, None, None, sender[1], subject='经费报销', sender_text='', to_text=sender[0]).send()
-        pass
+            Email(cont, None, None, sender[1], subject='经费报销', sender_text='', to_text=sender[1]).send()
 
     def refresh(self, user):
         self.user = user
