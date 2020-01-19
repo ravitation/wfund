@@ -9,6 +9,7 @@ from utils.util import now_time_str
 from utils.email import Email
 from view.component.part import Part
 from config.config import mail_template
+from view.fund.ensure_pay import EnsurePay
 
 
 class ClsStatPanel(wx.Panel):
@@ -146,8 +147,9 @@ class ClsStatPanel(wx.Panel):
     def OnPopupPaySelected(self, event):
         pay = Compute.parse(self.grid.GetTable().GetDataValue(self.select_grid_row, 5))
         user_id = self.grid_data.get((self.select_grid_row, 6))
-        dlg = wx.MessageDialog(None, '此操作将清空此用户申请信息!', '提示', wx.YES_NO | wx.ICON_QUESTION)
-        if dlg.ShowModal() == wx.ID_YES:
+        # dlg = wx.MessageDialog(None, '此操作将清空此用户申请信息!', '提示', wx.YES_NO | wx.ICON_QUESTION)
+        dlg = EnsurePay(self, user_id, pay)
+        if dlg.ShowModal() == wx.ID_OK:
             if round(pay, 2) > 0 and user_id:
                 fund_pay = FundPayRecord(money=pay, user_id=user_id, create_time=now_time_str())
                 fund_pay.save()

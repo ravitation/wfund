@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding=utf-8 _*_
 import wx
-import base64
-import os
 from utils.img_tran import EmbedImg
-from model.common import User
 from view.component.register import Register
 
 

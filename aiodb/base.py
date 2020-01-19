@@ -83,6 +83,11 @@ class Model(dict, metaclass=ModelMetaclass):
         return n.result()
 
     @classmethod
+    def find_by_key(cls, key=None):
+        n = asyncio.run_coroutine_threadsafe(cls.__select_by_key(key), var.__loop)
+        return n.result()
+
+    @classmethod
     def find(cls, where=None, args=None, **kw):
         n = asyncio.run_coroutine_threadsafe(cls.__select(where=where, args=args, **kw), var.__loop)
         return n.result()
@@ -103,6 +108,19 @@ class Model(dict, metaclass=ModelMetaclass):
     def delete_by_key(cls, key=None):
         n = asyncio.run_coroutine_threadsafe(cls.__delete_by_key(key=key), var.__loop)
         return n.result()
+
+    @classmethod
+    @asyncio.coroutine
+    def __select_by_key(cls, key):
+        sql = [cls.__select__]
+        if key is not None:
+            args = [key]
+            sql.append('where')
+            sql.append("id=?")
+        else:
+            return None
+        rs = yield from select(' '.join(sql), args)
+        return [cls(**r) for r in rs][0]
 
     @classmethod
     @asyncio.coroutine
